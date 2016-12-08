@@ -1,0 +1,780 @@
+<!doctype html>
+<html class="theme-next use-motion ">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+<link rel="stylesheet" type="text/css" href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" />
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.2"/>
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+<meta name="description" content="Bug的发现一次偶然的机会，发现了QQ的一个Bug。复现过程如下：
+
+在QQ中通过任意途径打开一个pdf或者word文档
+单击全屏显示
+滑动返回到一半终止返回（再次回到浏览界面）
+再次滑动返回，就会观察到这样的场景————导航栏消失不见或者导航栏错位
+
+当然，这是一个必现的Bug，而且我也相信类似的操作在很多别的应用中也会引发这个Bug，归根结底，这是iOS在引入了滑动返回后导航栏本身的一个Bug">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考">
+<meta property="og:url" content="http://blog.luckymore.wang/2015/05/19/iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考/index.html">
+<meta property="og:site_name" content="luckymore的学习笔记">
+<meta property="og:description" content="Bug的发现一次偶然的机会，发现了QQ的一个Bug。复现过程如下：
+
+在QQ中通过任意途径打开一个pdf或者word文档
+单击全屏显示
+滑动返回到一半终止返回（再次回到浏览界面）
+再次滑动返回，就会观察到这样的场景————导航栏消失不见或者导航栏错位
+
+当然，这是一个必现的Bug，而且我也相信类似的操作在很多别的应用中也会引发这个Bug，归根结底，这是iOS在引入了滑动返回后导航栏本身的一个Bug">
+<meta property="og:image" content="http://i1.tietuku.com/a3801e82244a56fa.png">
+<meta property="og:image" content="http://i1.tietuku.com/bff9f95e941c82fd.png">
+<meta property="og:image" content="http://i1.tietuku.com/91098c7438f8f3d8.png">
+<meta property="og:image" content="http://i1.tietuku.com/b2868e17f2361e67.png">
+<meta property="og:updated_time" content="2015-10-19T14:28:37.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考">
+<meta name="twitter:description" content="Bug的发现一次偶然的机会，发现了QQ的一个Bug。复现过程如下：
+
+在QQ中通过任意途径打开一个pdf或者word文档
+单击全屏显示
+滑动返回到一半终止返回（再次回到浏览界面）
+再次滑动返回，就会观察到这样的场景————导航栏消失不见或者导航栏错位
+
+当然，这是一个必现的Bug，而且我也相信类似的操作在很多别的应用中也会引发这个Bug，归根结底，这是iOS在引入了滑动返回后导航栏本身的一个Bug">
+<meta name="twitter:image" content="http://i1.tietuku.com/a3801e82244a56fa.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post'
+  };
+</script>
+
+
+
+  <title> iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考 | luckymore的学习笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">luckymore的学习笔记</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-05-19T21:41:12+08:00" content="2015-05-19">
+              2015-05-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS学习笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS学习笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/05/19/iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/05/19/iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="Bug的发现">Bug的发现</h2><p>一次偶然的机会，发现了QQ的一个Bug。<br>复现过程如下：</p>
+<ul>
+<li>在QQ中通过任意途径打开一个pdf或者word文档</li>
+<li>单击全屏显示</li>
+<li>滑动返回到一半终止返回（再次回到浏览界面）</li>
+<li>再次滑动返回，就会观察到这样的场景————导航栏消失不见或者导航栏错位</li>
+</ul>
+<p>当然，这是一个必现的Bug，而且我也相信类似的操作在很多别的应用中也会引发这个Bug，归根结底，这是iOS在引入了滑动返回后导航栏本身的一个Bug</p>
+<a id="more"></a>
+<h2 id="问题复现">问题复现</h2><p>为了验证这个问题，我特地用storyboard拖了3个viewController，其实前两个的导航栏设置为不隐藏，第三个导航栏设置为隐藏，并且在viewWillAppear和viewWillDisappear中对导航栏做了处理。<br>最后的实验结果出乎意料！！<br>iOS居然直接屏蔽了从无导航栏滑动返回到有导航栏的操作。<br>我可以从第二个界面滑动返回到第一个界面，但是没有办法从第三个界面滑动返回到第二个界面？</p>
+<p>为此！我特地自定义了滑动返回事件，来复现这个问题。<br>源代码见：<a href="https://github.com/luckymore0520/NavigationTest" target="_blank" rel="external">https://github.com/luckymore0520/NavigationTest</a></p>
+<p>下面我们来构想这样一个场景，应用中大部分的界面是具有导航栏的，只有少数几个是没有导航栏的。那么我们这么写：</p>
+<p>如果有基类viewController，会在viewWillAppear中添加setNavigationBarHidden = NO的方法，并且在需要隐藏导航栏的viewController的viewWillAppear中setNavigationBarHidden:YES 同时在viewWillAppear的时候设为NO；</p>
+<p>我在storyboard中拖了4个viewController，分别设为1、2、3、4，其中3是没有导航栏的，界面切换的顺序是：<br>1-2-3<br>2-4<br>简单的说，1为root，2可以到3和4<br><img src="http://i1.tietuku.com/a3801e82244a56fa.png" alt="storyboard"></p>
+<p>当我们从没有导航栏的3滑动返回到2，并且第一次取消滑动返回，第二次再次滑动返回的时候，表面上界面2没有任何问题，但是此时，无论你进入4还是返回1，导航栏上始终写着2！也就是说，本该属于界面2的导航栏阴魂不散地留在了导航栏上面，返回按钮也变得无效，必须使用滑动返回<br>这个问题是必现的，也是比较离奇的=.=<br><img src="http://i1.tietuku.com/bff9f95e941c82fd.png" alt="第四页"><br><img src="http://i1.tietuku.com/91098c7438f8f3d8.png" alt="第一页"><br><img src="http://i1.tietuku.com/b2868e17f2361e67.png" alt="此处输入图片的描述"></p>
+<h2 id="讨论">讨论</h2><p>下面我们来讨论一下为什么会产生这样的问题：</p>
+<p>我们往往会在viewWillAppear和viewWillDisappear中通过setNavigationBarHidden的方法来处理导航栏的显示和隐藏，在正常情况下，这不会引起任何问题，因为单纯的单击返回，这些方法的生命周期是这样的</p>
+<ol>
+<li>Current viewWillDisappear</li>
+<li>New viewWillAppear </li>
+<li>Current viewDidDisappear </li>
+<li>New viewDidAppear</li>
+</ol>
+<p>而如果是取消了的滑动返回，它的生命周期是这样的</p>
+<ol>
+<li>Current viewWillDisappear</li>
+<li>New viewWillAppear</li>
+<li>New viewWillDisappear</li>
+<li>New viewDidDisappear</li>
+<li>Current viewWillAppear</li>
+<li>Current viewDidAppear</li>
+</ol>
+<p>假设从A push 到B<br>在A的viewWillAppear中设置navigationBarHidden = NO;<br>在B的viewWillAppear中设置navigationBarHidden = YES;<br>viewWillDisappear中设置navigationBarHidden = NO;</p>
+<p>把相关数据打印下来得出的结果是这样的：<br>取消滑动返回</p>
+<ol>
+<li>willDisappear 3    currentViewController 2</li>
+<li>willAppear 2       currentViewController 2</li>
+<li>willDisappear 2    currentViewController 3</li>
+<li>viewDidDisappear 2 currentViewController 3</li>
+<li>willAppear 3       currentViewController 3</li>
+<li>viewDidAppear 3    currentViewController 3</li>
+</ol>
+<p>再次滑动返回不取消</p>
+<ol>
+<li>willDisappear 3    currentViewController 2</li>
+<li>willAppear 2       currentViewController 2</li>
+<li>viewDidDisappear 3 currentViewController (null)</li>
+<li>viewDidAppear 2    currentViewController 2</li>
+</ol>
+<p>如果直接滑动不取消，出来的数据同上<br>所以问题必然处在取消滑动返回的顺序上<br>个人猜测问题就出在第三句，在currentViewController=3的情况下调用了2的viewWillDisappear。造成了导航栏的错乱，以至于引发了之后的一系列问题。<br>再深入研究下去，我也不知道究竟是什么触发了导航栏的错乱了0.0</p>
+<h2 id="解决方案">解决方案</h2><p>对于这个问题的解决方案，事实上可以用一个很trick的方法来预防导航栏的错乱，那就是用设置导航栏的alpha值来替代hidden，实践证明，当导航栏设为alpha=0后可以达成setHidden=YES一样的效果。</p>
+<p>当然，苹果官方并不建议对导航栏进行setHidden和setTranslucent以外的操作，事实证明，设置alpha会引发一些其他的问题。</p>
+<p>至于哪些问题…<br>我决定下次说啦~</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/18/iOS填坑之路-UIScrollView中contentOffset的Bug/" rel="next" title="iOS填坑之路-UIScrollView中contentOffset的Bug">
+                <i class="fa fa-chevron-left"></i> iOS填坑之路-UIScrollView中contentOffset的Bug
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/03/tracer-based-on-aspects-and-jspatch/" rel="prev" title="基于Aspects和JSPatch的热埋点方案">
+                基于Aspects和JSPatch的热埋点方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/05/19/iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考/"
+                   data-title="iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考" data-url="http://blog.luckymore.wang/2015/05/19/iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="http://tva4.sinaimg.cn/crop.0.0.512.512.180/87939914jw8eus1v8o70mj20e80e80tc.jpg" alt="luckymore" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">luckymore</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/luckymore0520" target="_blank">
+                  <i class="fa fa-github fa-fw"></i> GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2274597140/profile" target="_blank">
+                  <i class="fa fa-weibo fa-fw"></i> Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">友情链接</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.callmewhy.com/" target="_blank">CallMeWhy</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ios.dog/" target="_blank">Boolean93</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.zyliu.com/" target="_blank">Sheep</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.cee.moe/" target="_blank">Cee</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Bug的发现"><span class="nav-number">1.</span> <span class="nav-text">Bug的发现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题复现"><span class="nav-number">2.</span> <span class="nav-text">问题复现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#讨论"><span class="nav-number">3.</span> <span class="nav-text">讨论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">4.</span> <span class="nav-text">解决方案</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luckymore</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"luckymore0520"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.2" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      isMobile() && FastClick.attach(document.body);
+
+      // Define Motion Sequence.
+      motionIntegrator
+        .add(motionMiddleWares.logo)
+        .add(motionMiddleWares.menu)
+        .add(motionMiddleWares.backToTop)
+        .add(motionMiddleWares.postList)
+        .add(motionMiddleWares.sidebar);
+
+      // Bootstrap Motion.
+      motionIntegrator.bootstrap();
+    });
+  </script>
+
+  
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,725 @@
+<!doctype html>
+<html class="theme-next use-motion ">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+<link rel="stylesheet" type="text/css" href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" />
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.2"/>
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+<meta name="description" content="关于Aspectshttps://github.com/steipete/Aspects
+aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种实现方案。AOP主要实现的目的是针对业务处理过程中的切面进行提取，它所面对的是处理过程中的某个步骤或阶段，以获得逻辑过程中各部分之间低耦合性的隔离效果。以埋点为例，虽然现在已经有像友盟这样强大的第三方埋点方">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Aspects和JSPatch的热埋点方案">
+<meta property="og:url" content="http://blog.luckymore.wang/2015/06/03/tracer-based-on-aspects-and-jspatch/index.html">
+<meta property="og:site_name" content="luckymore的学习笔记">
+<meta property="og:description" content="关于Aspectshttps://github.com/steipete/Aspects
+aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种实现方案。AOP主要实现的目的是针对业务处理过程中的切面进行提取，它所面对的是处理过程中的某个步骤或阶段，以获得逻辑过程中各部分之间低耦合性的隔离效果。以埋点为例，虽然现在已经有像友盟这样强大的第三方埋点方">
+<meta property="og:updated_time" content="2016-12-07T17:19:48.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于Aspects和JSPatch的热埋点方案">
+<meta name="twitter:description" content="关于Aspectshttps://github.com/steipete/Aspects
+aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种实现方案。AOP主要实现的目的是针对业务处理过程中的切面进行提取，它所面对的是处理过程中的某个步骤或阶段，以获得逻辑过程中各部分之间低耦合性的隔离效果。以埋点为例，虽然现在已经有像友盟这样强大的第三方埋点方">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post'
+  };
+</script>
+
+
+
+  <title> 基于Aspects和JSPatch的热埋点方案 | luckymore的学习笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">luckymore的学习笔记</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                基于Aspects和JSPatch的热埋点方案
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-06-03T20:49:09+08:00" content="2015-06-03">
+              2015-06-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS学习笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS学习笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/06/03/tracer-based-on-aspects-and-jspatch/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/03/tracer-based-on-aspects-and-jspatch/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h3 id="关于Aspects">关于Aspects</h3><p><a href="https://github.com/steipete/Aspects" target="_blank" rel="external">https://github.com/steipete/Aspects</a></p>
+<p>aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种实现方案。AOP主要实现的目的是针对业务处理过程中的切面进行提取，它所面对的是处理过程中的某个步骤或阶段，以获得逻辑过程中各部分之间低耦合性的隔离效果。<br>以埋点为例，虽然现在已经有像友盟这样强大的第三方埋点方案，但是这并不能满足一些公司的业务需求，如果要完全自定义地进行埋点，监听并统计用户的行为，使用传统的方案，必然导致对整个项目的代码进行大范围的修改。而使用面向切面编程的思想，则可以将埋点和系统原有的逻辑解耦，悄悄地完成埋点。</p>
+<hr>
+<p>下面来看看Aspects是如何帮助我们实现这点的。</p>
+<p>还是举个例子来说明：<br>假设我们要统计某些页面的显示的次数，以往使用友盟来统计页面访问我们会这么做<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">- (void)viewWillAppear:(<span class="type">BOOL</span>)animated &#123;</div><div class="line">    [<span class="keyword">super</span> viewWillAppear:animated];</div><div class="line">    <span class="comment">//do something</span></div><div class="line">    <span class="keyword">if</span>(<span class="keyword">self</span>.title)&#123;</div><div class="line">        [<span class="type">MobClick</span> beginLogPageView:<span class="keyword">self</span>.title];</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>聪明一点的做法当然是可以把它写在基类。这样至少不会影响太多的代码。但是如果是其他一些更加个性化的埋点，比如说点击某个按钮，通过不同的方法进入某个页面，注册所消耗的时间统计等等等等。。。。</p>
+<p>有了Aspect 我们可以这么做<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[UIViewController aspect_hookSelector:@selector(viewWillAppear:) withOptions:AspectPositionAfter usingBlock:^(id&lt;AspectInfo&gt; aspectInfo) &#123;</div><div class="line">    UIViewController* viewController = aspectInfo.instance;</div><div class="line">    if (viewController.title) &#123;</div><div class="line">        [MobClick beginLogPageView:viewController.title];</div><div class="line">    &#125;</div><div class="line">&#125; error:NULL];</div></pre></td></tr></table></figure></p>
+<p>当然，这块代码完全可以和原有的逻辑隔离。<br>先解释一下，Aspects针对NSObject实现了aspect_hookSelector的方法，顾名思义，使用一个钩hook住了UIViewController的viewWillAppear方法，withOptions可以有两个参数，一个是AspectPositionAfter，另一个是AspectPositionBefore，分别代表在原有方法执行前或者原有方法执行后执行该block，根本上相当于利用oc的runtime特性替换了原有的方法。<br>通过aspectInfo中的instance和arguments属性可以分别获得方法的方法体和参数，基本上也就是获得了整个方法执行的上下文。<br><strong><em>特别需要注意的是，同一个继承树上的同一个方法只能被hook一次</em></strong></p>
+<a id="more"></a>
+<p>下面是使用Aspect的完整的埋点策略<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">- (void)configFromArray &#123;</div><div class="line">    //一个完成的用于配置的NSArray</div><div class="line">    //NSArray *configArray = [HWTracerInfo configArray];</div><div class="line">    NSArray *configArray = @[</div><div class="line">    @[NSStringFromClass([HWMainViewController class]),@&quot;cgButtonPressed&quot;,@&quot;Game_Button_Pressed&quot;],</div><div class="line"></div><div class="line">    @[NSStringFromClass([SetNicknameViewController class]),@&quot;initWithUserInfo:gender:&quot;,@&quot;Register_Name_Length&quot;,(NSArray*)^(id instance, NSArray* arguments)&#123;</div><div class="line">    NSString* nickname = [arguments firstObject];</div><div class="line">    return @[@(nickname.length), @&quot;Register_Name_Length&quot;];</div><div class="line">    &#125;]</div><div class="line">    ];</div><div class="line">    for (NSArray *item in configArray) &#123;</div><div class="line">        //第一个元素是类名</div><div class="line">        NSString *className = item[0];</div><div class="line">        //第二个元素是方法名</div><div class="line">        NSString *selectorName = item[1];</div><div class="line">        //第三个元素代表埋点类型的标识</div><div class="line">        NSString *actionName = item[2];</div><div class="line">        Class targetClass = NSClassFromString(className);</div><div class="line">        SEL targetSelector = NSSelectorFromString(selectorName);</div><div class="line">        NSError *error;</div><div class="line">        //根据以上元素使用Aspects</div><div class="line">        [targetClass aspect_hookSelector:targetSelector withOptions:AspectPositionBefore usingBlock:^(id&lt;AspectInfo&gt; aspectInfo)&#123;</div><div class="line">            int value = 1;</div><div class="line">            //如果包含第四个元素,即block，则传入instance和arguments参数，执行block，根据返回的参数来进行埋点</div><div class="line">            if (item.count &gt; 3) &#123;</div><div class="line">                HWTracerBlock block = (HWTracerBlock)item[3];</div><div class="line">                NSArray* result =  block (aspectInfo.instance,aspectInfo.arguments);</div><div class="line">            //根据结果埋点</div><div class="line">            &#125; else &#123;</div><div class="line">                //直接埋点</div><div class="line">            &#125;</div><div class="line">        &#125; error:&amp;error];</div><div class="line">        if (error) &#123;</div><div class="line">        //输出错误</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>我们可以把需要的埋点全部用NSArray的形式配置在一个列表中，通过提供类名、方法名、标识、以及必要时的block来统一的配置埋点，一旦触发了某次操作就进行一次记录。</p>
+<p>可以看出，对于一些情况的埋点，比如只要执行了某个方法就做一次记录，完全可以单纯地用一系列的字符串就可以做到，可以写到配置文件中或者远程部署，但是对于一些相对复杂的埋点，需要通过方法执行的上下文来判断，就必须传入block，因而想要做到远程控制埋点很困难。</p>
+<p>然后JSPatch的出现让远程控制所有的埋点成为了可能</p>
+<h3 id="关于JSPatch">关于JSPatch</h3><p>关于JSPatch 可以参见作者bang的博客<br><a href="http://blog.cnbang.net/works/2767/" target="_blank" rel="external">http://blog.cnbang.net/works/2767/</a><br>本人才疏学浅，并没有弄懂其实现原来，但是先尝试着用了起来。<br>JSPatch主要是为了动态更新iOS，当然也可以通过它来动态实现热部署</p>
+<p>之前说到，想要远程控制所有的埋点瓶颈在于block<br>而JSPatch可以通过javascript脚本来实现block，自然也就解决了这个问题。</p>
+<p>方案也很简单，原先的埋点方案是<br>item[0] = 类名<br>item[1] = 方法名<br>item[2] = 埋点标识<br>item[3] = block (非必须)<br>此时可以将item[3]替换成一个bool值或者一个标识<br>然后在解析的时候判断是否需要block</p>
+<p>如果需要就调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[JPEngine evaluateScript:script];</div></pre></td></tr></table></figure>
+<p>执行脚本，脚本的内容当然就是block的内容。<br>需要注意的是，JSPatch中执行Javascript中定义的block需要注意，参数由OC传入javascript采用以下方式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">- (void)request:(void(^)(NSString *action, NSArray arguments))callback &#123;</div><div class="line">    callback(self.action, self.arguments);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>具体可以参看( <a href="https://github.com/bang590/JSPatch" target="_blank" rel="external">https://github.com/bang590/JSPatch</a> )中对block使用的介绍</p>
+<h3 id="总结">总结</h3><p>使用Aspects我们可以实现将埋点和原有代码完全解耦<br>使用JSPatch和Aspects结合我们可以实现埋点的远程部署。<br>当然这两者在别的方面还有很好的应用。比如使用Aspects来代替项目中的基类，使用JSPatch完成热更新等等等等。大家都可以尝试下~</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/19/iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考/" rel="next" title="iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考">
+                <i class="fa fa-chevron-left"></i> iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/08/20/iOS学习笔记-关于Core-Foundation/" rel="prev" title="iOS学习笔记-关于Core Foundation">
+                iOS学习笔记-关于Core Foundation <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/06/03/tracer-based-on-aspects-and-jspatch/"
+                   data-title="基于Aspects和JSPatch的热埋点方案" data-url="http://blog.luckymore.wang/2015/06/03/tracer-based-on-aspects-and-jspatch/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="http://tva4.sinaimg.cn/crop.0.0.512.512.180/87939914jw8eus1v8o70mj20e80e80tc.jpg" alt="luckymore" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">luckymore</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/luckymore0520" target="_blank">
+                  <i class="fa fa-github fa-fw"></i> GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2274597140/profile" target="_blank">
+                  <i class="fa fa-weibo fa-fw"></i> Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">友情链接</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.callmewhy.com/" target="_blank">CallMeWhy</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ios.dog/" target="_blank">Boolean93</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.zyliu.com/" target="_blank">Sheep</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.cee.moe/" target="_blank">Cee</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#关于Aspects"><span class="nav-number">1.</span> <span class="nav-text">关于Aspects</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于JSPatch"><span class="nav-number">2.</span> <span class="nav-text">关于JSPatch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luckymore</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"luckymore0520"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.2" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      isMobile() && FastClick.attach(document.body);
+
+      // Define Motion Sequence.
+      motionIntegrator
+        .add(motionMiddleWares.logo)
+        .add(motionMiddleWares.menu)
+        .add(motionMiddleWares.backToTop)
+        .add(motionMiddleWares.postList)
+        .add(motionMiddleWares.sidebar);
+
+      // Bootstrap Motion.
+      motionIntegrator.bootstrap();
+    });
+  </script>
+
+  
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

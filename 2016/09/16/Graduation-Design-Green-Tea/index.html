@@ -1,0 +1,781 @@
+<!doctype html>
+<html class="theme-next use-motion ">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+<link rel="stylesheet" type="text/css" href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" />
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.2"/>
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+<meta name="description" content="本科的最后一个项目——毕业设计，我选择了困难模式。第一次自己做原型、画 Sketch 、设计产品第一次使用 Swift 独立开发项目这款 App 叫做 绿茶， 虽然差一个字就成了奇怪的名字， 不过其实很小清新的！ 虽然没有上线， 但是其实很完整戳我进项目地址">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记我的本科毕业设计——绿茶">
+<meta property="og:url" content="http://blog.luckymore.wang/2016/09/16/Graduation-Design-Green-Tea/index.html">
+<meta property="og:site_name" content="luckymore的学习笔记">
+<meta property="og:description" content="本科的最后一个项目——毕业设计，我选择了困难模式。第一次自己做原型、画 Sketch 、设计产品第一次使用 Swift 独立开发项目这款 App 叫做 绿茶， 虽然差一个字就成了奇怪的名字， 不过其实很小清新的！ 虽然没有上线， 但是其实很完整戳我进项目地址">
+<meta property="og:image" content="https://raw.githubusercontent.com/luckymore0520/GreenTea/master/screen.gif">
+<meta property="og:image" content="http://i1.piimg.com/4851/4f9b9fa733b77c08.png">
+<meta property="og:image" content="http://i1.piimg.com/4851/d75a515ab66de6ff.png">
+<meta property="og:image" content="http://i2.buimg.com/4851/ae6c418b2a03618e.png">
+<meta property="og:updated_time" content="2016-09-16T05:06:30.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记我的本科毕业设计——绿茶">
+<meta name="twitter:description" content="本科的最后一个项目——毕业设计，我选择了困难模式。第一次自己做原型、画 Sketch 、设计产品第一次使用 Swift 独立开发项目这款 App 叫做 绿茶， 虽然差一个字就成了奇怪的名字， 不过其实很小清新的！ 虽然没有上线， 但是其实很完整戳我进项目地址">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/luckymore0520/GreenTea/master/screen.gif">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post'
+  };
+</script>
+
+
+
+  <title> 记我的本科毕业设计——绿茶 | luckymore的学习笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">luckymore的学习笔记</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                记我的本科毕业设计——绿茶
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-09-16T10:48:08+08:00" content="2016-09-16">
+              2016-09-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS学习笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS学习笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/16/Graduation-Design-Green-Tea/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/16/Graduation-Design-Green-Tea/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>本科的最后一个项目——毕业设计，我选择了<code>困难模式</code>。<br>第一次自己做原型、画 <code>Sketch</code> 、设计产品<br>第一次使用 <code>Swift</code> 独立开发项目<br>这款 App 叫做 <code>绿茶</code>， 虽然差一个字就成了奇怪的名字， 不过其实很小清新的！ 虽然没有上线， 但是其实很完整<br><a href="https://github.com/luckymore0520/GreenTea" target="_blank" rel="external">戳我进项目地址</a></p>
+<a id="more"></a> 
+<h2 id="背景">背景</h2><p>不知不觉博客已经荒置了快1年了，之前的最后一篇文章还是在前司的时候，后来跟女朋友过了一段清闲的小日子，做完了本科的毕设，顺利地拿到了毕业证书，然后浪了一个暑假。</p>
+<p>研究生开学也有半月，虽然接了外包，有了兼职，当了助教，老板那边还有成堆的活，但是趁着中秋假期，忙里头像把这篇很久以前就想写的文章写一下。</p>
+<p>在我们学院，本科生的毕业设计一般分四类：导师选题、实习项目、自主选题以及实训。</p>
+<ul>
+<li><p>导师选题：顾名思义，就是老师给一个命题，通过双向选择确定学生来以这个命题作为毕设题目完成对应项目，一般都是已有的明确需求或者是研究性质的命题，但是不会太难，大部分是以团队为单位</p>
+</li>
+<li><p>实习项目：由于院里同学大部分大四都会出去实习，所以学院允许以在实习单位所做的项目为命题写毕业论文，这一般意味着不需要特地写一个项目只需要写一篇论文就能完成了，所以是最简单的方式。</p>
+</li>
+<li><p>自主选题：简而言之，就是自己想一个题目，然后把它实现出来</p>
+</li>
+<li><p>实训：针对那些实在没有项目可写的同学，学院从企业、政府要来一些项目让同学组队封闭开发，以此作为毕设。</p>
+</li>
+</ul>
+<p>于是，最后我放弃了实习项目这个简单模式，作死地选择了 <code>自主选题</code> 这条困难模式 =.=</p>
+<h2 id="关于项目">关于项目</h2><p>简而言之，这是一个奶茶集点卡应用，为了实现起来方便，我把商家操作和客户操作都放在了一个客户端，普通用户可以通过创建店铺成为商家，发布活动，客户可以查找到附近进行集点活动的店铺，并且在线上完成集点收集以及兑换的业务。具体流程见这个 Gif 即可。</p>
+<p><img src="https://raw.githubusercontent.com/luckymore0520/GreenTea/master/screen.gif" alt="Demo GIF Animation" title="Demo GIF Animation"></p>
+<h2 id="项目设计">项目设计</h2><p>作为一名软件工程出身的科班生，起初，我很老实地写了一份详实的需求分析文档。</p>
+<p>画了用例图，像这样：</p>
+<p><img src="http://i1.piimg.com/4851/4f9b9fa733b77c08.png" alt="用例图"></p>
+<p>写了一大堆用例描述文档，像这样：</p>
+<p><img src="http://i1.piimg.com/4851/d75a515ab66de6ff.png" alt="用例文档描述"></p>
+<p>后来发现还不如一个 <code>Sketch</code> 文件， 像这样:<br><a href="https://github.com/luckymore0520/GreenTea/tree/master/Design" target="_blank" rel="external">戳我下载Sketch源文件</a></p>
+<p>当然一开始做那些文档化的东西，纯粹是觉得日后写毕设的时候用得着，兴许对之后的开发会有一定的帮助。而实际上就是，对于这样的个人项目（甚至是小团队项目），标准的、完备的文档其实是没有太大必要的，一个 <code>Sketch</code> 或者 一个 <code>Axure</code> 就能解决大部分的需求问题。</p>
+<h2 id="项目开发">项目开发</h2><h3 id="LeanCloud">LeanCloud</h3><p>这样的一个项目肯定是需要服务端，需要数据持久化服务的。 而作为一个个人项目， 既要做设计、又要写服务端、又要写客户端实在是一件麻烦事儿，服务端那边还要部署、配置，其实是我最不喜欢的。</p>
+<p>所以针对这样一个不算复杂的项目，我选择尝试使用第三方数据服务平台，国内比较有名的就是 <code>LeanCloud</code> 了，口碑算是不错的。</p>
+<p>阅读了一下它的官方文档，还算详实， 唯一感到的不足就是 <code>SDK</code> 侵入性太强， 对于每个 Model 都需要继承其基类， 而数据的填充则是基于 <code>runtime</code> 的， 又因为 <code>SDK</code> 是用 <code>Objective-C</code> 来编写的， 对 <code>Swift</code> 的支持真的不是很好， 在开发的过程中遇到了不少坑。</p>
+<h3 id="集成_LeanCloud">集成 LeanCloud</h3><p>集成了 LeanCloud 也就意味着项目没有了所谓的<code>网络层</code>, 所有的数据的增删改查都直接通过调用其 SDK 中基类的对应方法就行了， 而为了方便日后的修改（比如去除 LeanCloud 的依赖）， 在所有的业务层中均没有涉及到对 LeanCloud 的任何依赖， 所有的数据处理的操作均通过自定义 Model 的扩展来实现， 比如：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// MARK: - LeanCloud</span></div><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Activity</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">queryShopInfo</span><span class="params">(completion:Shop-&gt;Void)</span></span> &#123;</div><div class="line">        <span class="comment">//获取shop的查询对象</span></div><div class="line">        <span class="keyword">let</span> query = <span class="type">Shop</span>.query()</div><div class="line">        query.includeKey(<span class="string">"activitys"</span>)</div><div class="line">        <span class="comment">//根据shopId查询shop</span></div><div class="line">        query.getObjectInBackgroundWithId(<span class="keyword">self</span>.shopId) &#123; (shop, error) <span class="keyword">in</span></div><div class="line">            <span class="keyword">if</span> <span class="keyword">let</span> shop = shop <span class="keyword">as</span>? <span class="type">Shop</span> &#123;</div><div class="line">                <span class="comment">//回调</span></div><div class="line">                <span class="keyword">self</span>.shopInfo = shop                </div><div class="line">                completion(shop)</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="项目结构">项目结构</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">|----- Protocal 协议  </div><div class="line">|  </div><div class="line">|  </div><div class="line">|----- Extension 扩展                 |----------------LoginAndRegister 登录注册</div><div class="line">|                                    |</div><div class="line">|                                    | </div><div class="line">|----- Section MVVM 架构目录 --------  |--------------- Setting 设置 Tab </div><div class="line">|                                    |  </div><div class="line">|                                    |  </div><div class="line">|----- Tools 各种工具                  |--------------- Message 消息 Tab  </div><div class="line">|                                    |  </div><div class="line">|                                    |  </div><div class="line">|----- Vender 第三方依赖               |----------------LoyaltyCards 卡包 Tab  </div><div class="line">                                     |  </div><div class="line">                                     |  </div><div class="line">                                      |----------------Activity 活动 Tab</div></pre></td></tr></table></figure>
+<p>当然，第三方库的集成还是使用的 <code>CocoaPods</code> ，只是一些无法使用 <code>CocoaPods</code> 集成的库存放在了 <code>Vender</code> 目录中。</p>
+<p>这里所谓的 <code>MVVM</code> 架构，实际上是参考了在 <code>@Swift</code> 大会上李洁信讲到的<code>基于 POP 的 MVVM 架构</code>这个说法， 当时觉得听起来是个不错的实践，便在这个项目中应用了一下，实际操作中也的确感受到了其好处，同时也发现了一些问题。下面是他的演讲 PPT， 感兴趣的可以具体看下。<br><a href="https://github.com/atConf/atswift-2016-resources/blob/master/keynotes/%E6%9D%8E%E6%B4%81%E4%BF%A1_Pop%20in%20Swift.pdf" target="_blank" rel="external">POP In Swift</a></p>
+<h3 id="POP_In_Swift">POP In Swift</h3><p>下面我就简单讲一下我在项目中如何使用面向协议编程来解决一些实际开发中遇到的问题， 其中的大部分思路都是我从 <code>@Swift</code> 大会上学到的， 也是在上面的 PPT 中可以看到的。</p>
+<h4 id="通过协议扩展来减少重复代码与解耦">通过协议扩展来减少重复代码与解耦</h4><p>在 iOS 应用开发中,常常会编写一个功能强大的 Controller 基类,所有的 Controller 集成这个基类,在基类中完成一些基本的配置,并加入一些经常使用 的方法供子类来调用。然而久而久之,这会使得项目变得越来越难以维护,一方 面并不是所有 Controller 都需要这些方法,这就意味着必须重载父类的方法才可 以去除这些逻辑。  </p>
+<p>举一个简单的例子,在应用中存在许多的界面都有一个共同的需求,他们通过 Present 而非 Push 的形式展示给用户,左上角有一个取消按钮,并且点击取 消按钮可以让该页面消失回到原先的页面,那么应该使用何种方式来实现这个需求呢?  </p>
+<p>继承或许是个不错的方法,写一个父类来完成所有的配置,将所有的这些界面均继承这个父类。听起来不错,然而如果其中的某几个界面又有共同的需求, 是不是意味着又要再加一层继承关系?  </p>
+<p>组合是一个更好的方法,可以写一个导航栏,让这些 Controller 持有这个自 定义的导航栏,所有的共同逻辑在这个自定义组件中完成,然而不得不承认,每 个 Controller 需要持有这些组件,并且需要管理这些事例的创建和释放,在使用 过程中通过间接变量,多了一层的结构。  </p>
+<p>针对这样的情况,本项目使用协议扩展的方式解决了这个问题,相比使用组合,并没有增加代码,但是却更容易复用。面向协议编程即接口而非具体实现, 充分解耦。下面是具体实现。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//定义协议</span><span class="class"><span class="keyword">protocol</span> <span class="title">ViewControllerPresentable</span> </span>&#123;	<span class="function"><span class="keyword">func</span> <span class="title">configureNavigationItem</span><span class="params">()</span></span> &#125;	<span class="comment">//协议扩展且限定遵循协议的是一个 UIViewController</span>	<span class="class"><span class="keyword">extension</span> <span class="title">ViewControllerPresentable</span> <span class="title">where</span> <span class="title">Self</span>:<span class="title">UIViewController</span></span>&#123;		<span class="function"><span class="keyword">func</span> <span class="title">configureNavigationItem</span><span class="params">()</span></span>&#123;			<span class="keyword">let</span> leftButton = <span class="type">CancelButton</span>.<span class="keyword">init</span>(frame:<span class="type">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">100</span>, <span class="number">40</span>)) 			leftButton.setTitle(<span class="string">"取消"</span>, forState: <span class="type">UIControlState</span>.<span class="type">Normal</span>) 			leftButton.setTitleColor(<span class="type">UIColor</span>.whiteColor(), forState: <span class="type">UIControlState</span>.<span class="type">Normal</span>) </div><div class="line">			leftButton.addTarget(leftButton, action: #selector(<span class="type">CancelButton</span>.onCancelButtonClicked), forControlEvents: <span class="type">UIControlEvents</span>.<span class="type">TouchUpInside</span>)			leftButton.titleLabel?.font = <span class="type">UIFont</span>.systemFontOfSize(<span class="type">UIFont</span>.systemFontSize())			leftButton.contentHorizontalAlignment = <span class="type">UIControlContentHorizontalAlignment</span>. <span class="type">Left</span>			<span class="keyword">let</span> leftBarBarItem = <span class="type">UIBarButtonItem</span>.<span class="keyword">init</span>(customView: leftButton)			<span class="keyword">self</span>.navigationItem.leftBarButtonItems = [leftBarBarItem] &#125;		&#125;<span class="class"><span class="keyword">class</span> <span class="title">CancelButton</span>:<span class="title">UIButton</span> </span>&#123;</div><div class="line">	 <span class="function"><span class="keyword">func</span> <span class="title">onCancelButtonClicked</span><span class="params">()</span></span>&#123;		<span class="keyword">self</span>.viewController()?.dismissViewControllerAnimated(<span class="literal">true</span>, completion: <span class="literal">nil</span>) </div><div class="line">	&#125; &#125;</div><div class="line"><span class="comment">//编辑个人信息的界面,即从当前页面直接弹出,左上角有一个取消按钮</span><span class="class"><span class="keyword">class</span> <span class="title">EditUserInfoTableViewController</span>: <span class="title">UITableViewController</span>,<span class="title">ViewControllerPresentable</span> </span>&#123;	<span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123; </div><div class="line">		<span class="keyword">super</span>.viewDidLoad() </div><div class="line">		<span class="keyword">self</span>.configureNavigationItem()	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在上面代码中,定义了一个 ViewControllerPresentable 的协议,这 个协议中定义了方法 configureNavigationItem(),然而通过协议扩展的方式给这个协议添加了一个默认实现,这个默认实现仅在遵循协议的类为 UIViewController 或者是其子类中生效,加入了这个限制,在这个默认实现中就 可以调用 UIViewController 的方法了。在使用过程中,只需要让 EditUserTableViewController 遵循这个协议,并且调用方法,不用写任何实现即可以完成指定的功能。</p>
+<h3 id="基于POP的MVVM的设计模式的实践">基于POP的MVVM的设计模式的实践</h3><p><img src="http://i2.buimg.com/4851/ae6c418b2a03618e.png" alt=""></p>
+<p>在 Model 中，存在 name 和 icon 的属性，ViewModel 通过注入 Model 来生成对应的 titleData 和 imageData 分别对应 Model 的 name 和 icon ，只不过它们已经被处理成了可以直接渲染在 View上的数据，而处理的方法便是通过协议。下面看具体代码实现，以ActivitySimpleViewModel为例：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">typealias</span> <span class="type">ActivitySimplePresentable</span> = <span class="class"><span class="keyword">protocol</span>&lt;<span class="title">TitlePresentable</span>,<span class="title">WebIconPresentable</span>,<span class="title">Checkable</span>,<span class="title">LocationPresentable</span>,<span class="title">SubTitlePresentable</span>&gt;//使用<span class="title">struct</span>而非<span class="title">class</span>是因为<span class="title">struct</span>没有引用所带来的副作用，<span class="title">ViewModel</span>是一个稳定的对象，<span class="title">struct</span>中一旦有数据发生改变整个就被重新替换，这样可以通过持有者的<span class="title">didSet</span>方法来刷新页面<span class="title">struct</span> <span class="title">ActivitySimpleViewModel</span>:<span class="title">ActivitySimplePresentable</span> </span>&#123;    <span class="comment">// 来自WebIconPresentable</span>	<span class="keyword">var</span> iconName: <span class="type">String</span>    <span class="comment">// 来自TitlePresentable</span>	<span class="keyword">var</span> title: <span class="type">String</span>    <span class="comment">// 来自LocationPresentable</span>	<span class="keyword">var</span> location: <span class="type">String</span>    <span class="comment">// 来自SubTitlePresentable</span>	<span class="keyword">var</span> subTitle: <span class="type">String</span>    <span class="comment">// 来自Checkable</span>	<span class="keyword">var</span> isChecked: <span class="type">Bool</span>?	<span class="comment">//注入activity来初始化</span>    <span class="keyword">init</span>(activity:<span class="type">Activity</span>)&#123;        <span class="keyword">self</span>.iconName = activity.avatar.url        <span class="keyword">self</span>.title = activity.name        <span class="keyword">self</span>.location = activity.locationName        <span class="keyword">self</span>.subTitle = <span class="string">"<span class="subst">\(activity.likeCount)</span>"</span>        <span class="keyword">self</span>.isChecked = activity.isLikedByMySelf    &#125;&#125;</div></pre></td></tr></table></figure>
+<p>ActivitySimpleViewModel的所有属性都定义与其遵循的协议，且本身没有任何实现，不用编写任何多余代码。下面是这些协议的代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">TitlePresentable</span> </span>&#123;    <span class="keyword">var</span> title: <span class="type">String</span> &#123; <span class="keyword">get</span> &#125;    <span class="keyword">var</span> titleColor: <span class="type">UIColor</span> &#123; <span class="keyword">get</span> &#125;    <span class="function"><span class="keyword">func</span> <span class="title">updateTitleLabel</span><span class="params">(label:UILabel)</span></span>&#125;<span class="class"><span class="keyword">extension</span> <span class="title">TitlePresentable</span> </span>&#123;    <span class="keyword">var</span> titleColor: <span class="type">UIColor</span> &#123;        <span class="keyword">return</span> <span class="type">UIColor</span>.globalTitleBrownColor()    &#125;        <span class="function"><span class="keyword">func</span> <span class="title">updateTitleLabel</span><span class="params">(label:UILabel)</span></span> &#123;        label.text = <span class="keyword">self</span>.title        label.textColor = <span class="keyword">self</span>.titleColor    &#125;&#125;<span class="class"><span class="keyword">protocol</span> <span class="title">WebIconPresentable</span> </span>&#123;    <span class="keyword">var</span> iconName: <span class="type">String</span> &#123; <span class="keyword">get</span> &#125;    <span class="function"><span class="keyword">func</span> <span class="title">updateImageView</span><span class="params">(imageView: UIImageView)</span></span>&#125;<span class="class"><span class="keyword">extension</span> <span class="title">WebIconPresentable</span> </span>&#123;    <span class="function"><span class="keyword">func</span> <span class="title">updateImageView</span><span class="params">(imageView: UIImageView)</span></span> &#123;        imageView.clipsToBounds = <span class="literal">true</span>        imageView.contentMode = <span class="type">UIViewContentMode</span>.<span class="type">ScaleAspectFill</span>        imageView.setImageWithUrlString(iconName)    &#125;&#125;....</div></pre></td></tr></table></figure>
+<p>这里只贴出了 TitlePresentable 和 WebIconPresentable 的代码，TitlePresentable 中定义了title 这个变量的 get 方法，意味着只要遵循了 TitlePresentable 的协议必须实现 title 这个属性，同时定义了 <code>updateTitleLabel（label:UILabel）</code>的方法，并提供了默认实现，在这个协议中，我们可以定义更多的属性即默认实现来控制 Title 的字体、颜色、背景等等，将这些处理工作全部封装在了协议扩展中，而 ViewModel 正常情况下不需要实现一行代码，当需要有个性化定制的时候只需要重写对应方法即可。  </p>
+<p>针对使用协议化定制的ViewModel，我们使用下面代码中的方式进行调用。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">ActivityListDataSource</span>: <span class="title">UITableViewDataSource</span> </span>&#123;    <span class="function"><span class="keyword">func</span> <span class="title">tableView</span><span class="params">(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath)</span></span> -&gt; <span class="type">UITableViewCell</span> &#123;        <span class="keyword">let</span> tableViewCell = tableView.dequeueReusableCell(indexPath: indexPath) <span class="keyword">as</span> <span class="type">ActivityTableViewCell</span>        <span class="keyword">if</span> <span class="keyword">let</span> activity = <span class="keyword">self</span>.activityList?[indexPath.row] &#123;            <span class="comment">//创建activityViewModel</span><span class="keyword">let</span> activityViewModel = <span class="type">ActivitySimpleViewModel</span>(activity: activity)<span class="comment">//渲染cell</span>            tableViewCell.render(activityViewModel)        &#125;        <span class="keyword">return</span> tableViewCell    &#125;&#125;<span class="class"><span class="keyword">class</span> <span class="title">ActivityTableViewCell</span>: <span class="title">UITableViewCell</span> </span>&#123;    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> starButton: <span class="type">UIButton</span>!    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> locationLabel: <span class="type">UILabel</span>!    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> nameLabel: <span class="type">UILabel</span>!    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> activityImageView: <span class="type">UIImageView</span>!    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> likeCountLabel: <span class="type">UILabel</span>!    <span class="function"><span class="keyword">func</span> <span class="title">render</span><span class="params">(activityPresentable:ActivitySimplePresentable)</span></span> &#123;        activityPresentable.updateImageView(activityImageView)        activityPresentable.updateTitleLabel(nameLabel)        activityPresentable.updateLocationLabel(locationLabel)        activityPresentable.updateButton(starButton)        activityPresentable.updateSubTitleLabel(likeCountLabel) &#125;&#125;</div></pre></td></tr></table></figure>
+<p>ActivityTableViewCell 甚至不需要依赖于 ActivityViewModel 或者 Activity，它仅仅依赖于ActivitySimplePresentable，并且通过传入UI组件的方法来完成对页面的渲染。</p>
+<h2 id="关于POP的一些思考">关于POP的一些思考</h2><ul>
+<li><p>面向协议和面向接口   </p>
+<p>  <code>protocal</code> 协议是苹果官方语言中的概念即协议， <code>Objective-C</code> 和 <code>Swift</code> 中都有， 而到了 <code>Swift 2.1</code> 后，苹果官方更是推崇<code>面向协议编程</code>。  </p>
+<p>  其实从作用和目的来说，协议和接口并没有多大差别，其目的就是定义某一类行为（功能、约定），然后让类（对象）遵循它从而实现它所规定的行为。</p>
+<p>  再谈谈协议扩展，其实就是定义了默认行为，Java 中也有类似的语法功能——接口默认实现。 </p>
+<p>  简而言之，面向协议编程和面向接口编程从实际的作用和目的上是一致的（实际操作也没有多大区别），唯一的区别从个人理解上就是<code>语义</code>层面的，针对<code>协议</code>和<code>接口</code>的不同语义可能导致在代码设计上会有一定的差别。</p>
+</li>
+<li><p>耦合</p>
+<p>  无论是协议还是扩展最大的一个好处其实就是解耦，帮助开发者开发出松耦合、可维护、可扩展的代码，对外暴露的仅仅是协议或者接口，隐藏其内容。 从软件工程的角度就是 <code>信息隐藏</code> ， 依赖接口或协议编程而非依赖实际的类编程，这点在上述的两点中都可以很容易看出来。</p>
+</li>
+</ul>
+<ul>
+<li><p>基于 POP 的 MVVM 设计模式的局限性</p>
+<p>  第一次看到这个模式， 其实感觉挺新鲜挺神奇的， 通过协议的组合以及协议的默认实现，可以减少大部分重复代码， 在处理 UI 渲染这块就编程了拼图式的将预置好的组件相拼接， 极大地提高了代码的复用率。</p>
+<p>  但是在实际使用过程中，其实并没有那么神奇。 就好比我这个项目是一个规模相对比较小的项目，并没有太多的复杂界面，也没有太多的组件复用， 在这种情况下使用这种方式，造成的问题包括：</p>
+<ul>
+<li>大规模增加文件个数，且很多文件只有短短几行</li>
+<li>减少代码可读性，一个简单的 UI 组件绘制，需要牵扯到 3 - 4 处分布在不同文件中的代码</li>
+</ul>
+<p>但是相对的，当项目足够复杂，并且有需求将各种 UI 元素组件化的情况下， 这种模式便是值得学习和一试的了。</p>
+</li>
+</ul>
+<h2 id="关于项目本身">关于项目本身</h2><p>   其实个人依然觉得一个通用的可以同时提供给商家和客户的集点卡应用是有一定市场价值的，拿去融个天使轮甚至都没啥问题 =.= ， 但是一定是没有太大的前景的，甚至做一个类似的微信应用，从推广和营销的角度更加合适， 所以最后也就成了一个练手项目了。</p>
+<p>   第一次使用 <code>Swift</code> 开发项目， 自我感觉依然没有摆脱使用 <code>Objective-C</code> 开发 iOS 应用的老惯性， 没有办法很自觉地使用 <code>Swift</code> 的思考方式来开发应用， 一些比较吸引人的特定也并没有用到。 可以看出，学习一门语言不单单是熟悉语法这么简单的事情，真的要做到理解和精通需要持续的项目积累以及源码阅读。</p>
+<p>   马上出 3.0 了。。还在犹豫要不要升级 =.=。 </p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/11/02/tableview-header-mask/" rel="next" title="实现一个类似iOS9全局搜索的TableView Section Header效果">
+                <i class="fa fa-chevron-left"></i> 实现一个类似iOS9全局搜索的TableView Section Header效果
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/21/Fix-Mac-Pro-Wifi/" rel="prev" title="如何处理 RMBP 蛋疼的 Wi-Fi 问题">
+                如何处理 RMBP 蛋疼的 Wi-Fi 问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/09/16/Graduation-Design-Green-Tea/"
+                   data-title="记我的本科毕业设计——绿茶" data-url="http://blog.luckymore.wang/2016/09/16/Graduation-Design-Green-Tea/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="http://tva4.sinaimg.cn/crop.0.0.512.512.180/87939914jw8eus1v8o70mj20e80e80tc.jpg" alt="luckymore" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">luckymore</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/luckymore0520" target="_blank">
+                  <i class="fa fa-github fa-fw"></i> GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2274597140/profile" target="_blank">
+                  <i class="fa fa-weibo fa-fw"></i> Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">友情链接</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.callmewhy.com/" target="_blank">CallMeWhy</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ios.dog/" target="_blank">Boolean93</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.zyliu.com/" target="_blank">Sheep</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.cee.moe/" target="_blank">Cee</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于项目"><span class="nav-number">2.</span> <span class="nav-text">关于项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#项目设计"><span class="nav-number">3.</span> <span class="nav-text">项目设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#项目开发"><span class="nav-number">4.</span> <span class="nav-text">项目开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LeanCloud"><span class="nav-number">4.1.</span> <span class="nav-text">LeanCloud</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集成_LeanCloud"><span class="nav-number">4.2.</span> <span class="nav-text">集成 LeanCloud</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#项目结构"><span class="nav-number">4.3.</span> <span class="nav-text">项目结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POP_In_Swift"><span class="nav-number">4.4.</span> <span class="nav-text">POP In Swift</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过协议扩展来减少重复代码与解耦"><span class="nav-number">4.4.1.</span> <span class="nav-text">通过协议扩展来减少重复代码与解耦</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于POP的MVVM的设计模式的实践"><span class="nav-number">4.5.</span> <span class="nav-text">基于POP的MVVM的设计模式的实践</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于POP的一些思考"><span class="nav-number">5.</span> <span class="nav-text">关于POP的一些思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于项目本身"><span class="nav-number">6.</span> <span class="nav-text">关于项目本身</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luckymore</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"luckymore0520"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.2" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      isMobile() && FastClick.attach(document.body);
+
+      // Define Motion Sequence.
+      motionIntegrator
+        .add(motionMiddleWares.logo)
+        .add(motionMiddleWares.menu)
+        .add(motionMiddleWares.backToTop)
+        .add(motionMiddleWares.postList)
+        .add(motionMiddleWares.sidebar);
+
+      // Bootstrap Motion.
+      motionIntegrator.bootstrap();
+    });
+  </script>
+
+  
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

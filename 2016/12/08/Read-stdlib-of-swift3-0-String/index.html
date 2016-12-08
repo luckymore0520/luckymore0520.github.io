@@ -1,0 +1,812 @@
+<!doctype html>
+<html class="theme-next use-motion ">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+<link rel="stylesheet" type="text/css" href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" />
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.2"/>
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+<meta name="description" content="都说代码是最好的文档，标准库的代码+注释真的是比官方文档还有用！先拿最常用的 String 开刀！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift 3.0 标准库源码阅读笔记——String">
+<meta property="og:url" content="http://blog.luckymore.wang/2016/12/08/Read-stdlib-of-swift3-0-String/index.html">
+<meta property="og:site_name" content="luckymore的学习笔记">
+<meta property="og:description" content="都说代码是最好的文档，标准库的代码+注释真的是比官方文档还有用！先拿最常用的 String 开刀！">
+<meta property="og:image" content="https://raw.githubusercontent.com/luckymore0520/Read-stdlib-of-Swift3.0/master/String.png">
+<meta property="og:updated_time" content="2016-12-08T11:29:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Swift 3.0 标准库源码阅读笔记——String">
+<meta name="twitter:description" content="都说代码是最好的文档，标准库的代码+注释真的是比官方文档还有用！先拿最常用的 String 开刀！">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/luckymore0520/Read-stdlib-of-Swift3.0/master/String.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post'
+  };
+</script>
+
+
+
+  <title> Swift 3.0 标准库源码阅读笔记——String | luckymore的学习笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">luckymore的学习笔记</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Swift 3.0 标准库源码阅读笔记——String
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-12-08T01:10:53+08:00" content="2016-12-08">
+              2016-12-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS学习笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS学习笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/08/Read-stdlib-of-swift3-0-String/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/08/Read-stdlib-of-swift3-0-String/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>都说代码是最好的文档，标准库的代码+注释真的是比官方文档还有用！<br>先拿最常用的 <code>String</code> 开刀！</p>
+<a id="more"></a> 
+<p>阅读过程中可以配合 playground 文件：<a href="https://github.com/luckymore0520/Read-stdlib-of-Swift3.0/tree/master/String.playground" target="_blank" rel="external">String.playground</a> </p>
+<h2 id="用法简介">用法简介</h2><p>Swift 中的 String 是一个 Unicode 的字符串值（struct）<br>Swift 中的 String 可以和 Objective-C 中的 <code>NSString</code> 相互桥接，很多时候将 <code>String</code> 转换成 <code>NSString</code> 来做一些针对字符串的处理会更加方便。<br>Swift 中的 String 还可以很完美地和 C 层进行交互，实现了一些 C 层次的 API，并且结果完全一致。</p>
+<p>首先先讲讲 String 的一些基本用法：</p>
+<h3 id="创建">创建</h3><ul>
+<li>string literals  字符串构建，最简单的构建方式  </li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> greeting = <span class="string">"Welcome!"</span></div></pre></td></tr></table></figure>
+<ul>
+<li>string interpolation 插值构建</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> name = <span class="string">"Rosa"</span></div><div class="line"><span class="keyword">let</span> personalizedGreeting = <span class="string">"Welcome, <span class="subst">\(name)</span>!"</span></div></pre></td></tr></table></figure>
+<h3 id="修改">修改</h3><p>String 为值类型（struct），修改一个 string 的拷贝，原来的不会被影响。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> otherGreeting = greeting</div><div class="line">otherGreeting += <span class="string">" Have a nice time!"</span></div><div class="line"><span class="built_in">print</span>(otherGreeting)</div><div class="line"><span class="comment">//Prints "Welcome! Have a nice time!"</span></div><div class="line"><span class="built_in">print</span>(greeting)</div><div class="line"><span class="comment">// Prints "Welcome!"  原来的不受影响</span></div></pre></td></tr></table></figure>
+<h3 id="比较">比较</h3><p>String 比较的不是字面值，而是标准化为 Unicode 的值</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> cafe1 = <span class="string">"Cafe\u&#123;301&#125;"</span></div><div class="line"><span class="keyword">let</span> cafe2 = <span class="string">"Café"</span></div><div class="line"><span class="built_in">print</span>(cafe1 == cafe2)</div><div class="line"><span class="comment">// Prints "true"  最后的值为 true</span></div></pre></td></tr></table></figure>
+<p>unicode <code>\u{301}</code> 做的就是把前一个字符做一个升调，可以看到，这两个字符串是相等的。</p>
+<p>String 类型是不受 Locale 影响的。 </p>
+<h3 id="视图">视图</h3><p>String 本身是不可迭代的，需要通过 String 的视图完成集合相关操作，比如下标。</p>
+<ul>
+<li>Character View  字符串视图 </li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> cafe = <span class="string">"Cafe\u&#123;301&#125; du 🌍"</span></div><div class="line"><span class="built_in">print</span>(cafe.characters.<span class="built_in">count</span>)</div><div class="line"><span class="comment">// Prints "9" 注意， string.characters 返回的是一个 CharacterView 不是一个 Array</span></div><div class="line"><span class="built_in">print</span>(<span class="type">Array</span>(cafe.characters))</div><div class="line"><span class="comment">// Prints "["C", "a", "f", "é", " ", "d", "u", " ", "🌍"]"</span></div></pre></td></tr></table></figure>
+<ul>
+<li>Unicode ScalarView （UTF-32 View)</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">print</span> (cafe.unicodeScalars.<span class="built_in">count</span>)  </div><div class="line"><span class="comment">// Print "10" </span></div><div class="line"><span class="built_in">print</span> (<span class="type">Array</span>(cafe.unicodeScalars))</div><div class="line"><span class="comment">// Prints "["C", "a", "f", "e", "\u&#123;0301&#125;", " ", "d", "u", " ", "\u&#123;0001F30D&#125;"]"</span></div><div class="line"></div><div class="line"><span class="built_in">print</span>(cafe.unicodeScalars.<span class="built_in">map</span> &#123; $<span class="number">0</span>.value &#125;)</div><div class="line"><span class="comment">//Prints "[67, 97, 102, 101, 769, 32, 100, 117, 32, 127757]"</span></div></pre></td></tr></table></figure>
+<p>差别很明显，Character View 是用户可识别的，针对用户的， Unicode ScalarView 直接显示 Unicode·标量， <code>é</code> 由两个 Unicode 组成，所以前者为9 后者为 10， <code>🌍</code>  在 Unicode ScarlarView 中直接显示为 32位 的 Unicode 值</p>
+<ul>
+<li>UTF-16 View  </li>
+</ul>
+<p>相比 Unicode ScalarView, UTF-16 显示的是 16位 的 Unicode </p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">print</span>(cafe.utf16.<span class="built_in">count</span>)</div><div class="line"><span class="comment">// Prints "11"</span></div><div class="line"><span class="built_in">print</span>(<span class="type">Array</span>(cafe.utf16))</div><div class="line"><span class="comment">// Prints "[67, 97, 102, 101, 769, 32, 100, 117, 32, 55356, 57101]"</span></div></pre></td></tr></table></figure>
+<p>可以看到，最后一个字符  “🌍” 被分割成了两个 UTF-16 字符</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">print</span>(<span class="type">Array</span>(<span class="string">"🌍"</span>.utf16))</div><div class="line"><span class="comment">//[55356, 57101]</span></div><div class="line"><span class="built_in">print</span>(<span class="type">Array</span>(<span class="string">"🌍"</span>.unicodeScalars))</div><div class="line"><span class="comment">//["\u&#123;0001F30D&#125;"]</span></div></pre></td></tr></table></figure>
+<p>值得一提的是，之前提过 String 和 NSString 之间可以直接进行桥接，那么将刚才那个字符转换成 NSString 后再调用其 length 会获得多大的长度值呢？</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> nscafe = cafe <span class="keyword">as</span> <span class="type">NSString</span></div><div class="line"><span class="built_in">print</span> (nscafe.length)</div><div class="line"><span class="comment">// Prints 11</span></div><div class="line"><span class="built_in">print</span>(nscafe.character(at: <span class="number">10</span>))</div><div class="line"><span class="comment">// Print  57101</span></div></pre></td></tr></table></figure>
+<p>所以 NSString 用的是 UTF-16 的编码方式</p>
+<ul>
+<li>UTF-8 View</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">print</span>(cafe.utf8.<span class="built_in">count</span>)</div><div class="line"><span class="comment">//Prints "14"</span></div><div class="line"><span class="built_in">print</span>(<span class="type">Array</span>(cafe.utf8))</div><div class="line"><span class="comment">//240, 159, 140, 141]"</span></div><div class="line"></div><div class="line"><span class="keyword">let</span> cLength = strlen(cafe)</div><div class="line"><span class="built_in">print</span>(cLength)</div><div class="line"><span class="comment">//Prints "14"</span></div></pre></td></tr></table></figure>
+<p>strlen 是 C 层次的 API， 所以可以看到 C 中 String 是采取 UTF-8 编码的</p>
+<h2 id="视图的选择">视图的选择</h2><p>为什么 Swift 中 String 要使用视图？ 我们选择什么样的视图取决于使用的用途。 不同的视图导致 String 返回不同的长度。<br>一个是用途考虑：用于用户显示，针对用户而言，肯定是 characterView<br>另一个是考虑兼容： 如果需要和 C 交互 或者转换成了 NSString ，则需要具体情况具体考虑。</p>
+<h2 id="IsEmpty">IsEmpty</h2><p>一个小细节，如果想要判断字符串是否为空， 不要调用 <code>views.count</code> ，调用 <code>isEmpty</code> ，前者会有一个 O(n) 的时间消耗，会遍历一遍。</p>
+<h2 id="String_元素访问">String 元素访问</h2><p>我们没有办法直接通过 cafe[i] 来获取到 cafe 的第 i 个元素（ i 为一个 Int ） </p>
+<p>必须使用 String.Index 下标  </p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> index = cafe.characters.index(cafe.startIndex, offsetBy: <span class="number">8</span>)</div><div class="line"><span class="built_in">print</span>(cafe[index])</div><div class="line"><span class="comment">//Print "🌍"</span></div></pre></td></tr></table></figure>
+<p>可以看到，直接对 String 做下标访问，使用的是 CharacterView</p>
+<p>再看一个官方例子：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> name = <span class="string">"Marie Curie"</span></div><div class="line"><span class="keyword">let</span> firstSpace = name.characters.index(of: <span class="string">" "</span>)!</div><div class="line"><span class="keyword">let</span> firstName = <span class="type">String</span>(name.characters.<span class="keyword">prefix</span>(upTo: firstSpace))</div><div class="line"><span class="built_in">print</span>(firstName)</div><div class="line"><span class="comment">//Prints "Marie"</span></div></pre></td></tr></table></figure>
+<p>通过 <code>name.characters.index(of: &quot; &quot;)</code> 获得第一个空白字符的 Index（类型为 String.Index），String(characterView) 可以将 CharacterView 转换成 String。</p>
+<p>Index 是可以相互转换的，同一个字符，在 CharacterView 和 UTF-8 View中很可能位置不同，我们使用下面的方式来进行转换：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> firstSpaceUTF8 = firstSpace.samePosition(<span class="keyword">in</span>: name.utf8)</div><div class="line"><span class="built_in">print</span>(<span class="type">Array</span>(name.utf8.<span class="keyword">prefix</span>(upTo: firstSpaceUTF8)))</div><div class="line"><span class="comment">//Prints "[77, 97, 114, 105, 101]"</span></div></pre></td></tr></table></figure>
+<p>其他 API 可以阅读官方文档~ 下面进入源码阶段！</p>
+<h2 id="源码阅读">源码阅读</h2><h3 id="&lt;&lt;_struct_&gt;&gt;_String">&lt;&lt; struct &gt;&gt; String</h3><p>String的结构体本身非常简单。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">String</span> </span>&#123;</div><div class="line">  <span class="comment">/// Creates an empty string.</span></div><div class="line">  <span class="keyword">public</span> <span class="keyword">init</span>() &#123;</div><div class="line">    _core = _StringCore()</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">public</span> <span class="comment">// @testable</span></div><div class="line">  <span class="keyword">init</span>(<span class="number">_</span> _core: _StringCore) &#123;</div><div class="line">    <span class="keyword">self</span>._core = _core</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">public</span> <span class="comment">// @testable</span></div><div class="line">  <span class="keyword">var</span> _core: _StringCore</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到着手点就在 _StringCore 这个对象， 在 String 文件中并没有找到 <code>_StringCore</code> 的定义，剩下的就是 String 的一大堆扩展，先不针对这些扩展做文章，我们来找 <code>_StringCore</code></p>
+<h3 id="&lt;&lt;_struct_&gt;&gt;__StringCore">&lt;&lt; struct &gt;&gt; _StringCore</h3><p>我们可以直接找到 StringCore 的文件， 在里面有 _StringCore 对象的定义。 _StringCore 是一个比较底层的结构体，真正定义了 String 的数据结构。它能够存储 ASCII 和 UTF-16， 同时可以包装 _StringBuffer 或者 NSString 实例</p>
+<p>_StringCore 主要有三个实例：</p>
+<p> <code>_baseAddress</code>,<code>_countAndFlags</code>,<code>_owner</code></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> s: <span class="type">String</span>? = <span class="string">"Foo"</span></div><div class="line"><span class="built_in">print</span>(s?.characters)</div><div class="line"><span class="comment">// Optional(Swift.String.CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000000111b220cc), _countAndFlags: 3, _owner: nil)))</span></div><div class="line"></div><div class="line"><span class="keyword">var</span> t: <span class="type">String</span>? = <span class="string">"Foo"</span></div><div class="line"><span class="built_in">print</span>(t?.characters)</div><div class="line"></div><div class="line"><span class="comment">// Optional(Swift.String.CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000000111b220cc), _countAndFlags: 3, _owner: nil)))</span></div><div class="line"></div><div class="line">t = t! + <span class="string">" Hello"</span></div><div class="line"><span class="built_in">print</span>(t?.characters)</div><div class="line"><span class="comment">//Optional(Swift.String.CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x00006180000595b0), _countAndFlags: 9, _owner: Optional(Swift._HeapBufferStorage&lt;Swift._StringBufferIVars, Swift.UInt16&gt;))))</span></div><div class="line"><span class="built_in">print</span>(s?.characters)</div><div class="line"><span class="comment">//Optional(Swift.String.CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x00000001103ab0cc), _countAndFlags: 3, _owner: nil)))</span></div></pre></td></tr></table></figure>
+<p>所以至少可以看到 <code>_baseAddress</code>指的是 字符串对应的地址指针， <code>_countAndFlags</code> 代表长度 , <code>owner</code>暂时不知道干嘛的 =.= 待议。但是</p>
+<p>这里两个String对象的 baseAddress 指向了同一个指针，所以有必要解释下 String 的内存管理机制。</p>
+<p>在 Swift 中， String 使用的是 copy-on-write 的策略将数据存储在 buffer 中，并且 buffer 是可以共享的， 以上述代码为例， 一开始 “Foo” 这个字符串在缓存区中是不存在的，会新建 “Foo” 这块缓存， 定义 t 的时候在缓存区找到了 “Foo” 便直接将 _baseAddress 指向 “Foo”， 当修改 String 值的时候， 会重新指向一个新的地址。</p>
+<p>在 _StringCore 这个文件中，同样定义了许多方法，同时 _StringCore 也实现了不少协议，这些我们先跳过，因为 _StringCore 这个对象在实际开发中基本不会使用到， 我们可以在之后涉及到 String 的一些操作的时候回过头看这些方法。</p>
+<h3 id="&lt;&lt;_struct_&gt;&gt;_String-CharacterView">&lt;&lt; struct &gt;&gt; String.CharacterView</h3><p>接着我们来看一下 String 的不同视图， 首先是最常用到的 CharacterView。</p>
+<p>String 本身不是一个 Sequence 或者 Collection，所以如果要对 String 中的字符做操作，需要借助其视图，比如 characters</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">String</span> </span>&#123;</div><div class="line">  <span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">CharacterView</span> </span>&#123;</div><div class="line">    <span class="keyword">internal</span> <span class="keyword">var</span> _core: _StringCore</div><div class="line">    <span class="keyword">internal</span> <span class="keyword">var</span> _coreOffset: <span class="type">Int</span></div><div class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(<span class="number">_</span> text: <span class="type">String</span>) &#123;</div><div class="line">      <span class="keyword">self</span>._core = text._core</div><div class="line">      <span class="keyword">self</span>._coreOffset = <span class="number">0</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">public</span> <span class="comment">// @testable</span></div><div class="line">    <span class="keyword">init</span>(<span class="number">_</span> _core: _StringCore, coreOffset: <span class="type">Int</span> = <span class="number">0</span>) &#123;</div><div class="line">      <span class="keyword">self</span>._core = _core</div><div class="line">      <span class="keyword">self</span>._coreOffset = coreOffset</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">public</span> <span class="keyword">var</span> characters: <span class="type">CharacterView</span> &#123;</div><div class="line">    <span class="keyword">get</span> &#123;</div><div class="line">      <span class="keyword">return</span> <span class="type">CharacterView</span>(<span class="keyword">self</span>)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">set</span> &#123;</div><div class="line">      <span class="keyword">self</span> = <span class="type">String</span>(newValue)</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">public</span> <span class="keyword">init</span>(<span class="number">_</span> characters: <span class="type">CharacterView</span>) &#123;</div><div class="line">    <span class="keyword">self</span>.<span class="keyword">init</span>(characters._core)</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>CharacterView 是一个 String 的内部结构体，有两个私有属性： <code>_core:_StringCore</code>,<code>_coreOffset: Int</code>， String 定义了一个获取其 CharacterView 的方法，实际上就是调用了 <code>CharacterView(self)</code> 可以看到， 每次调用 characters 都会重新生成一个 CharacterView， 而 CharacterView 的构造方法实际上是复制了 String 的 _core， 注意，因为 _StringCore 是结构体，所以这里是拷贝。 而 characters 的 set 方法实际上替换了 String 本身。</p>
+<p>下面介绍一个在这个结构体定义的时候唯一涉及到的一个功能性质的方法</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">mutating</span> <span class="function"><span class="keyword">func</span> <span class="title">withMutableCharacters</span>&lt;R&gt;<span class="params">(</span></span></div><div class="line"><span class="number">_</span> body: <span class="params">(<span class="keyword">inout</span> CharacterView)</span> -&gt; <span class="type">R</span></div><div class="line">) -&gt; <span class="type">R</span> &#123;</div><div class="line"><span class="comment">// Naively mutating self.characters forces multiple references to</span></div><div class="line"><span class="comment">// exist at the point of mutation. Instead, temporarily move the</span></div><div class="line"><span class="comment">// core of this string into a CharacterView.</span></div><div class="line">	<span class="keyword">var</span> tmp = <span class="type">CharacterView</span>(<span class="string">""</span>)</div><div class="line">	<span class="built_in">swap</span>(&amp;_core, &amp;tmp._core)</div><div class="line">	<span class="keyword">let</span> r = body(&amp;tmp)</div><div class="line">	<span class="built_in">swap</span>(&amp;_core, &amp;tmp._core)</div><div class="line">	<span class="keyword">return</span> r</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>使用一个临时的 CharacterView 作为 tmp， 交换 tmp 和 String 的 _core， 然后对 tmp 做一些操作， 做完之后再交换回来， 那么 String 的 _core 已经是被处理过的了。 函数返回的是这个闭包的返回值。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> str = <span class="string">"All this happened, more or less."</span></div><div class="line"><span class="keyword">let</span> afterSpace = str.withMutableCharacters &#123; chars -&gt; <span class="type">String</span>.<span class="type">CharacterView</span> <span class="keyword">in</span></div><div class="line">	<span class="keyword">if</span> <span class="keyword">let</span> i = chars.index(of: <span class="string">" "</span>) &#123;</div><div class="line">  		<span class="keyword">let</span> result = chars.suffix(from: chars.index(after: i))</div><div class="line">		chars.removeSubrange(i..&lt;chars.endIndex)</div><div class="line">		<span class="keyword">return</span> result</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> <span class="type">String</span>.<span class="type">CharacterView</span>()</div><div class="line">  &#125;</div><div class="line"><span class="built_in">print</span>(str)</div><div class="line"><span class="comment">// Prints "All"</span></div><div class="line"><span class="built_in">print</span>(<span class="type">String</span>(afterSpace))</div><div class="line"><span class="comment">// Prints "this happened, more or less."</span></div></pre></td></tr></table></figure>
+<p>之前也提过， String 本身不是一个集合不可被遍历， 而 CharacterView 实现了 <code>BidirectionalCollection</code> 协议，是一个集合，可遍历。</p>
+<p>在实现中， 定义了 String.CharacterView.Index 这个对象，即 CharacterView 的下标，这个下标首先是 <code>Comparable</code> 的，调用 CharacterView 的下标方法 <code>[]</code> 中必须是一个 <code>String.CharacterView.Index</code> 对象而不是一个 <code>Int</code> 值。</p>
+<p><code>String.CharacterView.Index</code> 是基于 <code>String.UnicodeScalarView.Index</code>的，它有一个类型为 <code>String.UnicodeScalarView.Index</code> 的 base 实例， 附带一个 _countUTF16 的偏移量， 我们可以以之前的”🌍”，它是两个 UTF-32 字符，但是是一个 Character，所以一个 base 和一个 count 就可以解决 UnicodeScalarView.Index 到 CharacterView.Index 的转换。</p>
+<p>我们可以猜测， UnicodeScalarView.Index 一定也是采用了类似的设计。</p>
+<p>事实上，不同视图的 Index 是可以相互转换的，使用 <code>samePosition(in)</code> 方法。具体的代码如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> hearts = <span class="string">"Hearts &lt;3 ♥︎ 💘"</span></div><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> i = hearts.characters.index(of: <span class="string">" "</span>) &#123;</div><div class="line">	 <span class="keyword">let</span> j = i.samePosition(<span class="keyword">in</span>: hearts.utf8)</div><div class="line">	 <span class="built_in">print</span>(<span class="type">Array</span>(hearts.utf8.<span class="keyword">prefix</span>(upTo: j)))</div><div class="line">&#125;</div><div class="line"><span class="comment">// Prints "[72, 101, 97, 114, 116, 115]"</span></div></pre></td></tr></table></figure>
+<p>调用 CharacterView 的下标方法返回的是一个 Character 类型的对象， 并且通过 UnicodeScalars来进行构造的。 </p>
+<p>关于 <code>Character</code> 类型， <code>Character</code> 可以由一个或多个 Unicode 组成， <code>Character</code> 是一个可以直接展示给用户的字符，对于用户来说，它是一个字符， 但是很多情况下，它实际上由多个 Unicode 字符组成。</p>
+<p><code>Character</code> 比较重要的一个属性是 <code>_representation</code> ，这是一个枚举类型，</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">@_versioned</div><div class="line"><span class="keyword">internal</span> <span class="class"><span class="keyword">enum</span> <span class="title">Representation</span> </span>&#123;</div><div class="line"><span class="comment">// A _StringBuffer whose first grapheme cluster is self.</span></div><div class="line"><span class="comment">// <span class="doctag">NOTE:</span> may be more than 1 Character long.</span></div><div class="line"><span class="keyword">case</span> large(_StringBuffer._Storage)</div><div class="line"><span class="keyword">case</span> small(<span class="type">Builtin</span>.<span class="type">Int63</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>所有的 UTF-8 字符都可以用63位的Int来表示，也就是大部分情况下就是 small， 但是非 UTF-8就会使用 large(_StringBuffer._Storage) 来表示，它完全有可能超过 1 个字符。</p>
+<p>CharacterView 同时还实现了协议 <code>RangeReplaceableCollection</code>, 可以从字面理解，这是一个代表 可以使用 Range 来替换部分的 Collection， 我们不做深究。</p>
+<p>通过阅读 CharacterView 的源码，可以发现几乎所有的操作都是借助于 UnicodeScalarView 来做的， 就不得不去看看 UnicodeScalarView 的对应操作。</p>
+<h3 id="&lt;&lt;_struct_&gt;&gt;_String-UnicodeScalarView">&lt;&lt; struct &gt;&gt; String.UnicodeScalarView</h3><p>我们可以猜测 UnicodeScalarView 应该拥有和 CharacterView 类似的功能， 是一个 <code>BidirectionalCollection</code> 和一个  <code>RangeReplaceableCollection</code> ，打开 StringUnicodeScalarView.swift， 的确，它实现了这两个协议，而且它也同样持有一个和对应 String相同的_StringCore，但是具体的实现和我的猜测有所出入。</p>
+<p>我们只讲它和 <code>String.CharacterView</code> 不同的地方， 从表现上我们已经知道， <code>UnicodeScalarView</code> 代表的是 UTF-32， 而一个 <code>Character</code> 可能由多个 <code>UTF-32</code> 组成。</p>
+<p>从实现上，<code>CharacterView</code> 的相关集合、下标操作都是依赖于 <code>UnicodeScalarView</code> 的， 并且<code>CharacterView.Index</code>也是通过 <code>UnicodeScarlarView.Index</code> 来进行相关操作，但是 <code>UnicodeScalarView.Index</code> 并不是我所预想的依赖于 <code>UTF16View.Index</code>, 而是依赖于 _StringCore。</p>
+<p><code>UnicodeScalarView.Index</code> 仅有一个 Int 类型的属性 <code>_position</code> 即位置，这也很好理解，因为每个 <code>UnicodeScalar</code> 的长度是固定的，即32位，所以一个位置足矣，自然也就不需要依赖于其他的 <code>View</code>.</p>
+<p><code>UnicodeScalarView</code> 中定义了一个迭代器 <code>_ScratchIterator</code> 负责对 <code>_core</code> 进行迭代，从而完成 <code>UnicodeScalarView</code> 的下标操作， 可以想象一下，对于 _core的 baseAddress 做对应的位操作就可以获取到了。</p>
+<p>同<code>CharacterView</code>和<code>Character</code> 一样， <code>UnicodeScalarView</code> 也有自己的 <code>UnicodeScalar</code>，实际上就是一个 UTF-32。</p>
+<p>在 StringUnicodeScalarView.swift 中还定义了关于 UnicodeScalarView.Index 和其他视图的 Index 相互转换的扩展方法。</p>
+<h3 id="其他视图">其他视图</h3><p><code>UTF16View</code> 和 <code>UnicodeScalarView</code> 类似，值得一提的是，<code>_StringCore</code>本身提供了下标方法获取 UTF16.CodeUnit，而并没有扩展更多其他的下标，所以对于 <code>UTF16View</code>来说，可以基于<code>_core</code>的下标操作来完成对应的集合相关操作。</p>
+<p><code>UTF8View</code> 对 <code>_StringCore</code> 进行了扩展，定义了一个<code>_UTF8Chunk</code>的别名（实际上是一个UInt64)，即一个 <code>UTF8</code> 块， <code>UTF8.Index</code>中除了有一个<code>Int</code>类型的 coreIndex 外，直接存了一个 <code>_UTF8Chunk</code> 的 Buffer ，（索引里直接存值真是有创意，但是对于 UTF8 来说似乎是个好主意）</p>
+<h3 id="其他扩展">其他扩展</h3><ul>
+<li>StringBridge 定义了和 NSString 之间的桥接</li>
+<li>StringComparable 定义了针对 String 的比较方法，可以发现时基于 ASCII 码的</li>
+<li>StringHashable 完成了 String 的哈希策略</li>
+<li>StringIndexConversions 定义了 String 不同 View 的 Index 的相互转换</li>
+<li>StringLegancy 定义了 String 的一些扩展方法，比如 hasPrefix、hasSuffix、repeat的初始化方法等等</li>
+<li>等等等等</li>
+</ul>
+<h3 id="StringBuffer">StringBuffer</h3><p>关于 <code>StringBuffer</code>， 其实这对于理解 <code>String</code> 的内存管理机制比较重要，简单看了下， <code>StringBuffer</code> 主要是一个属性——<code>_Storage</code> ，他是一个 <code>HeapBuffer</code>， 关于 <code>HeapBuffer</code>，又有很多东西要讲，我准备放到下次再来研究下 <code>StringBuffer</code></p>
+<h2 id="总结">总结</h2><p>先上一张图：</p>
+<p><img src="https://raw.githubusercontent.com/luckymore0520/Read-stdlib-of-Swift3.0/master/String.png" alt=""></p>
+<p>图中描述了 关于 String 的一些比较关键的关系，包括协议、结构体，省略了一些其他的协议，比如 Equatable，Comparable 等等，也省略了部分视图（UTF16、UTF8)（都画上要乱套了）</p>
+<p>首先 <code>String</code> 是一个结构非常简单的结构体，只持有一个 <code>_StringCore</code> 的结构体，于是关于 <code>String</code> 的所有内容都封装在 <code>_StringCore</code> 上， 这是一个比较好的设计，<code>_StringCore</code> 是一个私有对象，直接隔离了 <code>String</code> 的所有内部结构（使用者并不关心），这样既安全又方便扩展。</p>
+<p><code>_StringCore</code> 包含三个属性， <code>_baseAddress</code> （ 指针地址，指向堆中的目标字符串） <code>_countAndFlags</code>（字符串长度）, <code>_owner</code> 用途位置，希望在下一次看 <code>StringBuffer</code>的时候能够看出端倪，目前线索就指向 <code>StringBuffer</code>。</p>
+<p>关于<code>String</code>的内存回收机制：copy-and-write、基于堆，重复利用。 在下一章 <code>StringBuffer</code> 中应该会对这块机制做更进一步的了解。</p>
+<p><code>String</code> 视图， <code>String</code> 有 4 个视图， <code>CharacterView</code> <code>UnicodeScalarView</code> <code>UTF16View</code> <code>UTF8View</code>， <code>String</code>并不持有视图，每次调用的时候会重新创建视图（复制_core)，不同的视图拥有对应类型的索引（Index），索引之间可以相互转换， 视图是 <code>Collection</code> 可遍历。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/21/Fix-Mac-Pro-Wifi/" rel="next" title="如何处理 RMBP 蛋疼的 Wi-Fi 问题">
+                <i class="fa fa-chevron-left"></i> 如何处理 RMBP 蛋疼的 Wi-Fi 问题
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/12/08/Read-stdlib-of-swift3-0-String/"
+                   data-title="Swift 3.0 标准库源码阅读笔记——String" data-url="http://blog.luckymore.wang/2016/12/08/Read-stdlib-of-swift3-0-String/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="http://tva4.sinaimg.cn/crop.0.0.512.512.180/87939914jw8eus1v8o70mj20e80e80tc.jpg" alt="luckymore" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">luckymore</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/luckymore0520" target="_blank">
+                  <i class="fa fa-github fa-fw"></i> GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2274597140/profile" target="_blank">
+                  <i class="fa fa-weibo fa-fw"></i> Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">友情链接</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.callmewhy.com/" target="_blank">CallMeWhy</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ios.dog/" target="_blank">Boolean93</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.zyliu.com/" target="_blank">Sheep</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.cee.moe/" target="_blank">Cee</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#用法简介"><span class="nav-number">1.</span> <span class="nav-text">用法简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建"><span class="nav-number">1.1.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改"><span class="nav-number">1.2.</span> <span class="nav-text">修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#比较"><span class="nav-number">1.3.</span> <span class="nav-text">比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#视图"><span class="nav-number">1.4.</span> <span class="nav-text">视图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#视图的选择"><span class="nav-number">2.</span> <span class="nav-text">视图的选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IsEmpty"><span class="nav-number">3.</span> <span class="nav-text">IsEmpty</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String_元素访问"><span class="nav-number">4.</span> <span class="nav-text">String 元素访问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码阅读"><span class="nav-number">5.</span> <span class="nav-text">源码阅读</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#<<_struct_>>_String"><span class="nav-number">5.1.</span> <span class="nav-text"><< struct >> String</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#<<_struct_>>__StringCore"><span class="nav-number">5.2.</span> <span class="nav-text"><< struct >> _StringCore</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#<<_struct_>>_String-CharacterView"><span class="nav-number">5.3.</span> <span class="nav-text"><< struct >> String.CharacterView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#<<_struct_>>_String-UnicodeScalarView"><span class="nav-number">5.4.</span> <span class="nav-text"><< struct >> String.UnicodeScalarView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他视图"><span class="nav-number">5.5.</span> <span class="nav-text">其他视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他扩展"><span class="nav-number">5.6.</span> <span class="nav-text">其他扩展</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StringBuffer"><span class="nav-number">5.7.</span> <span class="nav-text">StringBuffer</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luckymore</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"luckymore0520"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.2" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      isMobile() && FastClick.attach(document.body);
+
+      // Define Motion Sequence.
+      motionIntegrator
+        .add(motionMiddleWares.logo)
+        .add(motionMiddleWares.menu)
+        .add(motionMiddleWares.backToTop)
+        .add(motionMiddleWares.postList)
+        .add(motionMiddleWares.sidebar);
+
+      // Bootstrap Motion.
+      motionIntegrator.bootstrap();
+    });
+  </script>
+
+  
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

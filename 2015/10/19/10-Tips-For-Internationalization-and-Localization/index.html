@@ -1,0 +1,801 @@
+<!doctype html>
+<html class="theme-next use-motion ">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+<link rel="stylesheet" type="text/css" href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" />
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.2"/>
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+<meta name="description" content="关于iOS项目的国际化，之前有写过一篇文章，不过不是很系统，也有不少纰漏，还特地写过一篇填坑文，但是因为太坑了，所以不了了事。这段时间又踩了不少坑，也啃了啃官方的文档，特此整理10条Tip，有一些问题不会经常遇到，有些细节也很容易被忽略，不过大部分应该还是很有用的！如果你之前对iOS的国际化一无所知，推荐看一下这篇文章，很精炼也很完整——《Internationalization Tutorial">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10-Tips-For-Internationalization-and-Localization">
+<meta property="og:url" content="http://blog.luckymore.wang/2015/10/19/10-Tips-For-Internationalization-and-Localization/index.html">
+<meta property="og:site_name" content="luckymore的学习笔记">
+<meta property="og:description" content="关于iOS项目的国际化，之前有写过一篇文章，不过不是很系统，也有不少纰漏，还特地写过一篇填坑文，但是因为太坑了，所以不了了事。这段时间又踩了不少坑，也啃了啃官方的文档，特此整理10条Tip，有一些问题不会经常遇到，有些细节也很容易被忽略，不过大部分应该还是很有用的！如果你之前对iOS的国际化一无所知，推荐看一下这篇文章，很精炼也很完整——《Internationalization Tutorial">
+<meta property="og:image" content="https://developer.apple.com/library/watchos/documentation/MacOSX/Conceptual/BPInternational/Art/export_details_2x.png">
+<meta property="og:image" content="https://developer.apple.com/library/watchos/documentation/MacOSX/Conceptual/BPInternational/Art/import_details_2x.png">
+<meta property="og:image" content="http://i3.piimg.com/bb70c931e3b98349.jpg">
+<meta property="og:updated_time" content="2016-03-29T14:44:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="10-Tips-For-Internationalization-and-Localization">
+<meta name="twitter:description" content="关于iOS项目的国际化，之前有写过一篇文章，不过不是很系统，也有不少纰漏，还特地写过一篇填坑文，但是因为太坑了，所以不了了事。这段时间又踩了不少坑，也啃了啃官方的文档，特此整理10条Tip，有一些问题不会经常遇到，有些细节也很容易被忽略，不过大部分应该还是很有用的！如果你之前对iOS的国际化一无所知，推荐看一下这篇文章，很精炼也很完整——《Internationalization Tutorial">
+<meta name="twitter:image" content="https://developer.apple.com/library/watchos/documentation/MacOSX/Conceptual/BPInternational/Art/export_details_2x.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post'
+  };
+</script>
+
+
+
+  <title> 10-Tips-For-Internationalization-and-Localization | luckymore的学习笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">luckymore的学习笔记</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                10-Tips-For-Internationalization-and-Localization
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-10-19T22:16:21+08:00" content="2015-10-19">
+              2015-10-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS填坑之路/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS填坑之路</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/10/19/10-Tips-For-Internationalization-and-Localization/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/19/10-Tips-For-Internationalization-and-Localization/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>关于iOS项目的国际化，之前有写过一篇文章，不过不是很系统，也有不少纰漏，还特地写过一篇填坑文，但是因为太坑了，所以不了了事。这段时间又踩了不少坑，也啃了啃官方的文档，特此整理10条Tip，有一些问题不会经常遇到，有些细节也很容易被忽略，不过大部分应该还是很有用的！<br>如果你之前对iOS的国际化一无所知，推荐看一下这篇文章，很精炼也很完整——<a href="http://www.raywenderlich.com/64401/internationalization-tutorial-for-ios-2014" target="_blank" rel="external">《Internationalization Tutorial for iOS [2014 Edition]》</a></strong></p>
+<a id="more"></a> 
+<h2 id="1-使用InfoPlist-string为你的应用名、权限提醒等配置信息做国际化">1.使用InfoPlist.string为你的应用名、权限提醒等配置信息做国际化</h2><p>大家都知道，我们使用<code>Localizable.strings</code>文件为代码中的字符串做国际化，但是实际上还有<code>InfoPlist.strings</code>。系统会自动识别<code>InfoPlist.strings</code>来对项目的一些配置信息做国际化，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">CFBundleDisplayName 应用名称</div><div class="line"></div><div class="line">NSHumanReadableCopyright CopyRight</div><div class="line"></div><div class="line">NSCameraUsageDescription 相机权限开启时候弹框的提示文字</div><div class="line"></div><div class="line">NSContactsUsageDescription 通讯录权限开启时候弹框的提示文字</div><div class="line"></div><div class="line">NSLocationWhenInUseUsageDescription 定位权限开启时候弹框的提示文字</div><div class="line"></div><div class="line">NSMicrophoneUsageDescription 麦克风权限开启时候弹框的提示文字</div><div class="line"></div><div class="line">NSPhotoLibraryUsageDescription 相册权限开启时候弹框的提示文字</div><div class="line"></div><div class="line">NSRemindersUsageDescription	推送权限开启时候弹框的提示文字</div><div class="line"></div><div class="line">......</div></pre></td></tr></table></figure>
+<p>诸如以上这些配置，无法直接在InfoPlist中直接配置（要做国际化），所以使用InfoPlist.strings来配置。</p>
+<p>使用的方法很简单，新建一个InfoPlist.strings文件，并且在右侧勾选对应的语言即可。</p>
+<p><em>Tip：如果想要对应用名称做国际化，需要在项目配置里添加参数<code>Application has localized display name</code>为<code>YES</code></em></p>
+<h2 id="2-关于Base_Internationlization选项的正确理解以及误区">2.关于Base Internationlization选项的正确理解以及误区</h2><p>开启项目的国际化选项会有一个开关<code>Use Base Internationlization</code>，在<code>Localizable.strings</code>中也会有<code>(Base)</code>文件。一开始我很自以为是地以为Base的意思是如果项目并没有对某个语言做国际化，那么就使用Base语言，然而经过试验，发现事实并非是这样的，只是自己自作聪明罢了。下面看一下官方对<code>Base Internationlization</code>的解释：</p>
+<p><em>Base internationalization separates user-facing strings from .storyboard and .xib files. It relieves localizers of the need to modify .storyboard and .xib files in Interface Builder. Instead, an app has just one set of .storyboard and .xib files where strings are in the development language—the language that you used to create the .storyboard and .xib files. These .storyboard and .xib files are called the base internationalization. When you export localizations, the development language strings are the source that is translated into multiple languages. When you import localizations, Xcode generates language-specific strings files for each .storyboard and .xib file. The strings files don’t appear in the project navigator until you import localizations or add languages.<br>In Xcode 5 and later, base internationalization is enabled by default. If you have an older project, enable base internationalization before continuing, as described in Enabling Base Internationalization.</em></p>
+<p>简单的说，实际上Base Internationlization是为xib和storyboard来服务的。</p>
+<p>这也说明了一个问题，很多你原以为的东西事实上并不是一回事，时间久了你会自然而然地认为那是真理而不是当初的揣测，等真正暴露出为难了就很难发现了。</p>
+<p><strong>那么iOS系统中语言选取的原则究竟是什么呢？</strong></p>
+<p>我举个例子：假设我的应用使用的开发语言是英语，同时对法语、日语、阿拉伯语做了国际化。然而我的系统语言设置的是中文，那么打开应用会显示什么语言呢？ 答案是根据你系统的<code>首选语言列表</code>而定，在系统设置－语言设置的界面，有一栏列表叫做<code>首选语言列表</code>，假设你当前系统语言是中文，但是之前一次选择过阿拉伯文为系统语言，那么此事打开你的应用，将会显示阿拉伯文。</p>
+<p>iOS对应用语言的判定遵循的原则是：</p>
+<p>1 查看应用是否针对系统语言做国际化，如有，选择系统语言</p>
+<p>2.遍历系统对首选语言，如果存在对首选语言有做国际化，选择该首选语言</p>
+<p>3.全部没有对情况下使用develop language</p>
+<h2 id="3-针对不同界面开发模式使用不同的国际化方案">3.针对不同界面开发模式使用不同的国际化方案</h2><h3 id="纯代码手写UI">纯代码手写UI</h3><p>没什么好说的，一个Localizable.strings解决所有问题。</p>
+<p>使用<code>NSLocalizedString(@&quot;KEY&quot;, nil)</code>的宏方法，大部分教程中并没有提过这个方法的第二个参数是何含义，其实大部分情况下也不会用到，所以可以自己再定一个宏来除却不必要的麻烦：</p>
+<p><code>#define LOCAL_LANG(LangKey) NSLocalizedString(LangKey, nil)</code></p>
+<p>当然这个第二个参数并非没有用，Tip4来阐述这第二个参数的作用。</p>
+<h3 id="使用Storyboard">使用Storyboard</h3><p>之前讲Base Internationlization的时候就提过，它主要是为Storyboard和xib文件服务的。开启之后，在xib和storyboard右侧有localize选项，相应的处理方法和strings文件一样，选择国际化后会生成对应的strings文件，Xcode会抽出xib和Storyboard中所用使用的字符，界面上显示的内容会作为<code>base</code>的<code>key</code>和<code>value</code>，修改其他语言的.strings文件就给Storyboard做了国际化。</p>
+<h3 id="使用Xib">使用Xib</h3><p>Storyboard和Xib在做国际化中有一个很大的区别在于，一个Storyboard中可以包含多个视图，多个视图的字符串都可以集中在一个Storyboard.strings中，但是Xib往往是一个视图。当然Xib也可以使用同样的方法做国际化，但是如果一个项目中有30个xib，项目需要有8种语言，那就意味着需要维护30*8=240个strings文件，然而很多情况下每个文件里只有少数几个字符，这样的维护成本太大了。</p>
+<p>针对Xib的国际化，可以使用如下方法：</p>
+<p>直接在xib中用Localization.strings中的键作为值使用，然后对于需要国际化的view，统一调用如下方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">+ (void)replaceTextWithLocalizedTextInSubviewsForView:(<span class="type">UIView</span>*)targetView &#123;</div><div class="line">    <span class="keyword">for</span> (<span class="type">UIView</span>* view <span class="keyword">in</span> targetView.subviews) &#123;</div><div class="line">        <span class="keyword">if</span> (view.subviews.<span class="built_in">count</span> &gt; <span class="number">0</span>) &#123;</div><div class="line">        [<span class="keyword">self</span> replaceTextWithLocalizedTextInSubviewsForView:view];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> ([view isKindOfClass:[<span class="type">UILabel</span> <span class="class"><span class="keyword">class</span>]]) </span>&#123;</div><div class="line">        <span class="type">UILabel</span>* label = (<span class="type">UILabel</span>*)view;</div><div class="line">        label.text = <span class="type">LOCAL_LANG</span>(label.text);</div><div class="line">        [label sizeToFit];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> ([view isKindOfClass:[<span class="type">UIButton</span> <span class="class"><span class="keyword">class</span>]]) </span>&#123;</div><div class="line">        <span class="type">UIButton</span>* button = (<span class="type">UIButton</span>*)view;</div><div class="line">        [button setTitle:<span class="type">LOCAL_LANG</span>(button.titleLabel.text) forState:<span class="type">UIControlStateNormal</span>];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> ([view isKindOfClass:[<span class="type">UITextField</span> <span class="class"><span class="keyword">class</span>]]) </span>&#123;</div><div class="line">        <span class="type">UITextField</span>* textField = (<span class="type">UITextField</span>*)view;</div><div class="line">        [textField setPlaceholder:<span class="type">LOCAL_LANG</span>(textField.placeholder)];</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样所有Xib中要翻译的字符又都统一到了localizable.strings中了，然而这必然存在不少的弊端，譬如无法及时预览。具体见<code>Tip7</code></p>
+<p>当然，开发者遇到这样的困难苹果公司不可能没有想到，之前使用这样略黑科技的方法虽然解决了问题，但是其实苹果官方有更彻底的解决方案。具体见Tip5</p>
+<h2 id="4-使用genstrings帮助你生成Localizable-strings">4.使用genstrings帮助你生成Localizable.strings</h2><p><code>genstrings</code>是一个命令行工具，可以自动检测国际化相关的宏，从而生成对应的Localizable.strings文件，对应的命令很简单</p>
+<p><code>find . -name *.m | xargs genstrings -o en.lproj</code></p>
+<p><code>NSLocalizedString(@&quot;KEY&quot;, nil)</code>的后一个参数实际上就是服务于<code>genstrings</code>的，它的意义就是备注，使用genstrings工具可以按照第一个参数为<code>KEY</code>和<code>VALUE</code>，第二个参数为<code>Comment</code>来生成对应的键值对</p>
+<p>比如<code>NSLocalizedString(@&quot;Hello&quot;,@&quot;This is a comment&quot;)</code>就能生成</p>
+<p>/<em> This is a comment </em>/</p>
+<p>“Hello” = “Hello”;</p>
+<p>具体的使用方法和效果可以参见视频<a href="https://www.youtube.com/watch?v=1XxxmnDL_ls" target="_blank" rel="external">https://www.youtube.com/watch?v=1XxxmnDL_ls</a></p>
+<p>关于代码中字符串的国际化可以参考博客:<a href="http://objccn.io/issue-9-3/" target="_blank" rel="external">字符串本地化</a>,里面有不错好的实践</p>
+<h2 id="5-国际化资源的导出和导入">5.国际化资源的导出和导入</h2><p>没错！Xcode自带国际化资源的导入和导出功能！</p>
+<p>不信？</p>
+<p>点开<code>Editor</code>瞧瞧！</p>
+<p>有多少公司是直接把Localizable.strings文件拿出来给翻译人员翻译的？我司甚至为了方便翻译写了个自动抓取放到网页上填表的工具，但是实际上Xcode已经给我们做了很多。</p>
+<p>使用Xcode导出的国际化资源是<code>.xliff</code>格式的文件，很多第三方的翻译软件都是支持这个格式的文件的。它能把所有需要国际化的<code>.strings</code>文件全部倒出成对应语言的<code>.xliff</code>文件，翻译公司使用翻译软件生成其他语言的<code>.xliff</code>文件，然后开发者可以使用Xcode自带的导入功能将其导入。</p>
+<p>不止如此！导入的时候系统还会提供工具检验是否存在没有翻译的字段，检查diff。</p>
+<p><img src="https://developer.apple.com/library/watchos/documentation/MacOSX/Conceptual/BPInternational/Art/export_details_2x.png" alt=""></p>
+<p><img src="https://developer.apple.com/library/watchos/documentation/MacOSX/Conceptual/BPInternational/Art/import_details_2x.png" alt=""></p>
+<p>所以如果使用了Xcode自带的导入导出工具，那么之前提到的Xib情况下生成的.strings文件维护困难的问题也随之解决了。</p>
+<h2 id="6-修改xcscheme来帮助你对特定对国家语言和环境做调试">6.修改xcscheme来帮助你对特定对国家语言和环境做调试</h2><p>不少同学可能会有这样的体验，假设你开发的默认语言是英文，但是想测试下中文环境下的情况，但是即使系统语言是中文，你使用开发证书编译调试的时候依旧会显示英文的界面，这是为什么呢？一张图就能解释这个问题：</p>
+<p><img src="http://i3.piimg.com/bb70c931e3b98349.jpg" alt=""></p>
+<p>调试的时候选择<code>Edit Scheme</code>可以手动选择需要调试的语言和地区环境，这样针对特定语言做调试的时候你再也不需要手动修改本地语言环境了。</p>
+<h2 id="7-使用Pseudolocalizations提前发现界面适配问题（国际化适配测试）">7.使用Pseudolocalizations提前发现界面适配问题（国际化适配测试）</h2><p>之前提过，如果使用Tip3所提过的xib全局替换的黑科技会带来一定的弊端，其中之一就是无法实时预览。那么就来讲一讲如何对不同的国家语言的界面做实时预览。步骤如下</p>
+<p>1.选择对应的已经做了国际化的.xib或者.storyboard文件</p>
+<p>2.View -&gt; Assistant Editor -&gt; Show Assistant Editor</p>
+<p>3.点击Assistant Editor的左上角按钮点击选择最后一个选项preview</p>
+<p>4.此时可以看到该界面文件的预览图，右下角会有语言选择，同时会有一个选项：Double-Length Pseudo-Language检验如果是双倍长度的</p>
+<p>能否完整显示</p>
+<p>5.当然这个功能还可以预览对不同尺寸屏幕的适配</p>
+<h2 id="8-保证你的UILabel和UITextField等完美适应不同语言的不同长度">8.保证你的UILabel和UITextField等完美适应不同语言的不同长度</h2><ul>
+<li><p>利用好<code>AutoLayout</code>让你的<code>UILabel</code>根据内容自适应长度</p>
+</li>
+<li><p>如果对<code>UILabel</code>或者<code>UITextField</code>有硬性的<code>MaxWidth</code>设定，达到了最大宽度但是无法显示全，可以采用<code>AutoShrink</code>的方案。</p>
+</li>
+</ul>
+<p>针对UILabel可以在xib或者storyboard中设置AutoShrink属性，该属性的作用是如果Label内容显示不下，使用何种策略来适应，</p>
+<p>iOS提供了多种选项，包括按比例缩放、最小字体、减小字间距。当然在代码中可以统一设置UILabel的adjustsFontSizeToFitWidth、</p>
+<p>minimumScaleFactor、allowsDefaultTighteningForTruncation等属性，这些属性默认都是NO。</p>
+<p>针对UITextField，也有一个Min Font Size的属性可以调整</p>
+<ul>
+<li><p>配合Pseudolocalizations提早发现界面溢出的问题</p>
+</li>
+<li><p>特别需要注意的地方可以提前跟翻译人员说明，控制字符长度</p>
+</li>
+</ul>
+<h2 id="9-让你的应用适配不同的布局方向">9.让你的应用适配不同的布局方向</h2><p><strong>事先声明，这是个大坑</strong></p>
+<p>获取大部分开发者都不会遇到过<code>布局方向</code>这个术语，提起这个我突然想问个问题：有没有人有过疑问，在<code>AutoLayout</code>中<code>leading</code>、<code>trailing</code>和<code>left</code>和<code>right</code>到底有什么区别？明明设置的时候表现是一模一样的。</p>
+<p>在Xcode中，<code>leading</code>和<code>trailing</code>是被推荐的，最好的证明就是即使一般人永远都不会在意他们的区别，拖出来的布局永远都不会出现<code>left</code>和<code>right</code>的字段，为什么呢？官方的解释是这样的：</p>
+<p><em>When adding constraints, use the attributes leading and trailing for horizontal constraints.<br>For left-to-right languages, such as English, the attributes leading and trailing are<br>equivalent to left and right. For right-to-left language, such as Hebrew or Arabic, leading<br>and trailing are equivalent to right and left. The leading and trailing attributes are the<br>default values for horizontal constraints.</em></p>
+<p>用中文讲就是<code>leading</code>和<code>trailing</code>会根据屏幕的布局方向做不同的表现，在从左到右的布局中，它的效果会和<code>left</code>和<code>right</code>一样，在从右到左的布局中（比如阿拉伯语、锡伯语）<code>leading</code>相当于<code>right</code>，<code>trailing</code>相当于<code>left</code>。</p>
+<p>想看看具体效果如何，可以把系统语言设为阿拉伯文看看效果。</p>
+<p>值得注意的是：iOS9在原先基础上对从右到左的布局做了更彻底的适配，这会是的使用iOS8的SDK编译的包在iOS9阿拉伯环境下会有奇怪的表现，最简单的解决方法就是使用iOS9的SDK重新编译。</p>
+<p>然而，在开发中，你会遇到各种各样的情况，下面我列举几种容易遇到的问题：</p>
+<h4 id="1-不是所有的界面你都希望它要根据系统的屏幕方向做适配">1.不是所有的界面你都希望它要根据系统的屏幕方向做适配</h4><p>举个简单的例子，如果你的主页是一个内容宽度为屏幕的2.5倍的scrollView，那么在从右到左的的环境中，整个界面就完全乱了套了（你可以想象一下）。</p>
+<p>最简单的解决方案，如果这个界面你不希望它根据系统的布局方向做适配，那么你就把它的所有的<code>leading</code>和<code>trailing</code>约束换成<code>left</code>和<code>right</code>，干脆的做法就是使用源码方式打开xib文件，做全局替换，对应的，很多界面还是根据系统自动适配方向对于当地人更友好，那就继续使用<code>leading</code>和<code>left</code>，所以需要灵活使用。</p>
+<h4 id="2-系统的界面适配并不会自动给你的UILabel和UITextField做Alignment的适配">2.系统的界面适配并不会自动给你的UILabel和UITextField做Alignment的适配</h4><p>当然，我不确定这个玩意儿能否可以全局设置，之前花了一点时间还是没有找到最佳的方案。的确，坑爹的就是即使界面布局左右颠倒了，但是界面元素中的内容缺没有做更深层次的适配，这点很多时候不得不手动适配。所以你需要手动获取当前系统语言，并做相应处理。可以使用AOP做全局的替换，也可以手动调用Category中的方法去做fix，具体我就不贴代码了</p>
+<h4 id="3-参数的位置">3.参数的位置</h4><p>假设一段字符串需要显示:<code>&quot;Hello %@&quot;,name</code>，然而在其他语言中可能是<code>%@,balabalala,name</code>，怎么办！？</p>
+<p>一个处理方案就是在<code>localizable.strings</code>做参数话而不是直接在代码中，这是一个好的习惯。当然在阿拉伯环境中还是会遇到一个坑爹的情况，因为阿拉伯文是从右到左的阅读顺序，而中文、英文不是。举个最坑爹的你无法相信的例子：</p>
+<p><code>&quot;一段阿拉伯文 %@&quot;,name&quot;</code> 和 <code>&quot;%@ 一段阿拉伯文&quot;,name&quot;</code>在界面上显示的结果是一样的，name永远在最右边，然而实际的要求就是name需要在最左边。</p>
+<p>后来为了解决这个参数的问题，我使用了一个很黑很黑的方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- (void)fixArgumentPositionIfNeed &#123;</div><div class="line">    <span class="comment">//如果不是阿拉伯文</span></div><div class="line">    <span class="keyword">return</span>;</div><div class="line">    <span class="type">NSString</span> *replacedStr = [<span class="type">NSString</span> stringWithFormat:@<span class="string">"ل%@"</span>,<span class="keyword">self</span>.text];</div><div class="line">    <span class="type">NSMutableAttributedString</span> *attributeReplacedStr = [[<span class="type">NSMutableAttributedString</span> alloc] initWithString:replacedStr 	attributes:<span class="literal">nil</span>];</div><div class="line">    [attributeReplacedStr addAttributes:@&#123;<span class="type">NSForegroundColorAttributeName</span>:[<span class="type">UIColor</span> clearColor]&#125; range:<span class="type">NSMakeRange</span>(<span class="number">0</span>, <span class="number">1</span>)];</div><div class="line">    [<span class="keyword">self</span> setAttributedText:attributeReplacedStr];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>思路就是在字符串的前面再加入一个阿拉伯文字符，然后再把它设为隐藏。。。。。</p>
+<h2 id="10-手动获取系统语言和地区环境">10.手动获取系统语言和地区环境</h2><p>尽管iOS中很多国际化的问题都是直接项目适配并且系统帮忙处理的，但是还是会有不少情况需要手动获取系统当前的语言环境，并针对当前语言环境做判断做相应的处理。具体获取语言的代码如下:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">+ (<span class="type">NSString</span> *)systemLanguage &#123;</div><div class="line">    <span class="type">NSUserDefaults</span>* defs = [<span class="type">NSUserDefaults</span> standardUserDefaults];</div><div class="line">    <span class="type">NSArray</span>* languages = [defs objectForKey:@<span class="string">"AppleLanguages"</span>];</div><div class="line">    <span class="type">NSString</span>* preferredLang = [languages objectAtIndex:<span class="number">0</span>];</div><div class="line">    <span class="keyword">return</span> preferredLang;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其中<code>languages</code>是一个数组，数组中成员就是你的<code>首选语言</code>,其中第一个就是系统当前语言</p>
+<p>不过不知大家是否还记得，iOS9出来后微博、微信等应用（这些应用都有一个共同的特点：可以在应用内手动设置系统语言）都出现了语言错乱的问题，问题的根源就是iOS9系统中这个方法取出来的值变了。</p>
+<p>在iOS9以前，如果当前语言版本是英文，那就是<code>en</code>，阿拉伯文就是<code>ar</code>，中文就是<code>zh-Hans</code>，然而在iOS9中，假设我当前的语言是简体中文，当前的地区是埃及，取出来的值就是：<code>zh-Hans-EG</code>，没错，在iOS9新的API中，这个方法返回的参数会带上地区的后缀。所以原先对语言的判断就不能单单的<code>isEquasToString</code>了，起码要使用<code>hasPrefix</code>方法或者做一下<code>split</code>。</p>
+<p>那么问题来了！对于很多App来说系统语言是一个很重要的东西，为什么iOS9的这次升级苹果官方会在这么一个地方做改动呢。我猜呀，苹果官方肯定是不支持App直接使用系统语言的这个参数来控制本地化，更希望App的本地化工作能够遵循系统。</p>
+<h2 id="总结">总结</h2><p>国际化这个工作虽然边缘但是不得不做，而且如果做的不够专业很容易花费很多的人力，也达不到最好的效果。-.- 表示我们现在就在填之前埋下的坑。。所以还是趁此机会跟大家分享一下。</p>
+<p>最后，很抱歉因为涉及到的东西比较多，所以不能做到图文并茂，之后我会专门写一个小的项目尽量把我之前提到过的Tips尽量都浓缩在里面，尽量提供一个最佳时间的Demo。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/10/Co-orMix小记－关于开发的那点儿事/" rel="next" title="Co!orMix小记－关于开发的那点儿事">
+                <i class="fa fa-chevron-left"></i> Co!orMix小记－关于开发的那点儿事
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/11/02/tableview-header-mask/" rel="prev" title="实现一个类似iOS9全局搜索的TableView Section Header效果">
+                实现一个类似iOS9全局搜索的TableView Section Header效果 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/10/19/10-Tips-For-Internationalization-and-Localization/"
+                   data-title="10-Tips-For-Internationalization-and-Localization" data-url="http://blog.luckymore.wang/2015/10/19/10-Tips-For-Internationalization-and-Localization/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="http://tva4.sinaimg.cn/crop.0.0.512.512.180/87939914jw8eus1v8o70mj20e80e80tc.jpg" alt="luckymore" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">luckymore</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/luckymore0520" target="_blank">
+                  <i class="fa fa-github fa-fw"></i> GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2274597140/profile" target="_blank">
+                  <i class="fa fa-weibo fa-fw"></i> Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">友情链接</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.callmewhy.com/" target="_blank">CallMeWhy</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ios.dog/" target="_blank">Boolean93</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.zyliu.com/" target="_blank">Sheep</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.cee.moe/" target="_blank">Cee</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-使用InfoPlist-string为你的应用名、权限提醒等配置信息做国际化"><span class="nav-number">1.</span> <span class="nav-text">1.使用InfoPlist.string为你的应用名、权限提醒等配置信息做国际化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-关于Base_Internationlization选项的正确理解以及误区"><span class="nav-number">2.</span> <span class="nav-text">2.关于Base Internationlization选项的正确理解以及误区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-针对不同界面开发模式使用不同的国际化方案"><span class="nav-number">3.</span> <span class="nav-text">3.针对不同界面开发模式使用不同的国际化方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#纯代码手写UI"><span class="nav-number">3.1.</span> <span class="nav-text">纯代码手写UI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Storyboard"><span class="nav-number">3.2.</span> <span class="nav-text">使用Storyboard</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Xib"><span class="nav-number">3.3.</span> <span class="nav-text">使用Xib</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-使用genstrings帮助你生成Localizable-strings"><span class="nav-number">4.</span> <span class="nav-text">4.使用genstrings帮助你生成Localizable.strings</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-国际化资源的导出和导入"><span class="nav-number">5.</span> <span class="nav-text">5.国际化资源的导出和导入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-修改xcscheme来帮助你对特定对国家语言和环境做调试"><span class="nav-number">6.</span> <span class="nav-text">6.修改xcscheme来帮助你对特定对国家语言和环境做调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-使用Pseudolocalizations提前发现界面适配问题（国际化适配测试）"><span class="nav-number">7.</span> <span class="nav-text">7.使用Pseudolocalizations提前发现界面适配问题（国际化适配测试）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-保证你的UILabel和UITextField等完美适应不同语言的不同长度"><span class="nav-number">8.</span> <span class="nav-text">8.保证你的UILabel和UITextField等完美适应不同语言的不同长度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-让你的应用适配不同的布局方向"><span class="nav-number">9.</span> <span class="nav-text">9.让你的应用适配不同的布局方向</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-不是所有的界面你都希望它要根据系统的屏幕方向做适配"><span class="nav-number">9.0.1.</span> <span class="nav-text">1.不是所有的界面你都希望它要根据系统的屏幕方向做适配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-系统的界面适配并不会自动给你的UILabel和UITextField做Alignment的适配"><span class="nav-number">9.0.2.</span> <span class="nav-text">2.系统的界面适配并不会自动给你的UILabel和UITextField做Alignment的适配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-参数的位置"><span class="nav-number">9.0.3.</span> <span class="nav-text">3.参数的位置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-手动获取系统语言和地区环境"><span class="nav-number">10.</span> <span class="nav-text">10.手动获取系统语言和地区环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">11.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luckymore</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"luckymore0520"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.2" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      isMobile() && FastClick.attach(document.body);
+
+      // Define Motion Sequence.
+      motionIntegrator
+        .add(motionMiddleWares.logo)
+        .add(motionMiddleWares.menu)
+        .add(motionMiddleWares.backToTop)
+        .add(motionMiddleWares.postList)
+        .add(motionMiddleWares.sidebar);
+
+      // Bootstrap Motion.
+      motionIntegrator.bootstrap();
+    });
+  </script>
+
+  
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
