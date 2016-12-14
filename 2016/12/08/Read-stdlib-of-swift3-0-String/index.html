@@ -50,7 +50,7 @@
 <meta property="og:site_name" content="luckymore的学习笔记">
 <meta property="og:description" content="都说代码是最好的文档，标准库的代码+注释真的是比官方文档还有用！先拿最常用的 String 开刀！">
 <meta property="og:image" content="https://raw.githubusercontent.com/luckymore0520/Read-stdlib-of-Swift3.0/master/String.png">
-<meta property="og:updated_time" content="2016-12-08T11:29:27.000Z">
+<meta property="og:updated_time" content="2016-12-14T14:13:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Swift 3.0 标准库源码阅读笔记——String">
 <meta name="twitter:description" content="都说代码是最好的文档，标准库的代码+注释真的是比官方文档还有用！先拿最常用的 String 开刀！">
@@ -264,8 +264,7 @@
 <h3 id="比较">比较</h3><p>String 比较的不是字面值，而是标准化为 Unicode 的值</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> cafe1 = <span class="string">"Cafe\u&#123;301&#125;"</span></div><div class="line"><span class="keyword">let</span> cafe2 = <span class="string">"Café"</span></div><div class="line"><span class="built_in">print</span>(cafe1 == cafe2)</div><div class="line"><span class="comment">// Prints "true"  最后的值为 true</span></div></pre></td></tr></table></figure>
 <p>unicode <code>\u{301}</code> 做的就是把前一个字符做一个升调，可以看到，这两个字符串是相等的。</p>
-<p>String 类型是不受 Locale 影响的。 </p>
-<h3 id="视图">视图</h3><p>String 本身是不可迭代的，需要通过 String 的视图完成集合相关操作，比如下标。</p>
+<h3 id="视图">视图</h3><p>String 本身是不可迭代的，比如你没有办法直接拿到 String 的 length，需要通过 String 的视图完成集合相关操作。</p>
 <ul>
 <li>Character View  字符串视图 </li>
 </ul>
@@ -292,6 +291,7 @@
 <p>strlen 是 C 层次的 API， 所以可以看到 C 中 String 是采取 UTF-8 编码的</p>
 <h2 id="视图的选择">视图的选择</h2><p>为什么 Swift 中 String 要使用视图？ 我们选择什么样的视图取决于使用的用途。 不同的视图导致 String 返回不同的长度。<br>一个是用途考虑：用于用户显示，针对用户而言，肯定是 characterView<br>另一个是考虑兼容： 如果需要和 C 交互 或者转换成了 NSString ，则需要具体情况具体考虑。</p>
 <h2 id="IsEmpty">IsEmpty</h2><p>一个小细节，如果想要判断字符串是否为空， 不要调用 <code>views.count</code> ，调用 <code>isEmpty</code> ，前者会有一个 O(n) 的时间消耗，会遍历一遍。</p>
+<p>String 的 isEmpty 方法，直接访问了 <code>_StringCore</code>的<code>countAndFlag</code>属性，如果为 0 ，则为空。<br>而调用 String.characters.count， 会先生成一个 CharacterView， 然后再去获得长度。 具体看下文可以更好理解。</p>
 <h2 id="String_元素访问">String 元素访问</h2><p>我们没有办法直接通过 cafe[i] 来获取到 cafe 的第 i 个元素（ i 为一个 Int ） </p>
 <p>必须使用 String.Index 下标  </p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> index = cafe.characters.index(cafe.startIndex, offsetBy: <span class="number">8</span>)</div><div class="line"><span class="built_in">print</span>(cafe[index])</div><div class="line"><span class="comment">//Print "🌍"</span></div></pre></td></tr></table></figure>
@@ -311,7 +311,7 @@
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> s: <span class="type">String</span>? = <span class="string">"Foo"</span></div><div class="line"><span class="built_in">print</span>(s?.characters)</div><div class="line"><span class="comment">// Optional(Swift.String.CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000000111b220cc), _countAndFlags: 3, _owner: nil)))</span></div><div class="line"></div><div class="line"><span class="keyword">var</span> t: <span class="type">String</span>? = <span class="string">"Foo"</span></div><div class="line"><span class="built_in">print</span>(t?.characters)</div><div class="line"></div><div class="line"><span class="comment">// Optional(Swift.String.CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000000111b220cc), _countAndFlags: 3, _owner: nil)))</span></div><div class="line"></div><div class="line">t = t! + <span class="string">" Hello"</span></div><div class="line"><span class="built_in">print</span>(t?.characters)</div><div class="line"><span class="comment">//Optional(Swift.String.CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x00006180000595b0), _countAndFlags: 9, _owner: Optional(Swift._HeapBufferStorage&lt;Swift._StringBufferIVars, Swift.UInt16&gt;))))</span></div><div class="line"><span class="built_in">print</span>(s?.characters)</div><div class="line"><span class="comment">//Optional(Swift.String.CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x00000001103ab0cc), _countAndFlags: 3, _owner: nil)))</span></div></pre></td></tr></table></figure>
 <p>所以至少可以看到 <code>_baseAddress</code>指的是 字符串对应的地址指针， <code>_countAndFlags</code> 代表长度 , <code>owner</code>暂时不知道干嘛的 =.= 待议。但是</p>
 <p>这里两个String对象的 baseAddress 指向了同一个指针，所以有必要解释下 String 的内存管理机制。</p>
-<p>在 Swift 中， String 使用的是 copy-on-write 的策略将数据存储在 buffer 中，并且 buffer 是可以共享的， 以上述代码为例， 一开始 “Foo” 这个字符串在缓存区中是不存在的，会新建 “Foo” 这块缓存， 定义 t 的时候在缓存区找到了 “Foo” 便直接将 _baseAddress 指向 “Foo”， 当修改 String 值的时候， 会重新指向一个新的地址。</p>
+<p>在 Swift 中， String 使用的是 copy-on-write 的策略将数据存储在 buffer 中，并且 buffer 是可以共享的，这里的两个”Foo”实际上应该是在编译时就已经做了相应的优化，两个 String 指向同一块内存。</p>
 <p>在 _StringCore 这个文件中，同样定义了许多方法，同时 _StringCore 也实现了不少协议，这些我们先跳过，因为 _StringCore 这个对象在实际开发中基本不会使用到， 我们可以在之后涉及到 String 的一些操作的时候回过头看这些方法。</p>
 <h3 id="&lt;&lt;_struct_&gt;&gt;_String-CharacterView">&lt;&lt; struct &gt;&gt; String.CharacterView</h3><p>接着我们来看一下 String 的不同视图， 首先是最常用到的 CharacterView。</p>
 <p>String 本身不是一个 Sequence 或者 Collection，所以如果要对 String 中的字符做操作，需要借助其视图，比如 characters</p>
@@ -377,6 +377,10 @@
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/14/Read-stdlib-of-swift3-StringBuffer/" rel="prev" title="Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探">
+                Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -445,7 +449,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-count">14</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
