@@ -1,0 +1,807 @@
+<!doctype html>
+<html class="theme-next use-motion ">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+<link rel="stylesheet" type="text/css" href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" />
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.2"/>
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+<meta name="description" content="_StringCore 的 owner 到底是什么玩意儿？
+为什么有些有 owner 有些没 owner ？
+代码注释里所说的 String 共享 Buffer 究竟是怎么回事 ？
+_StringBuffer 是个啥玩意儿 ？
+带着一系列的问题，继续去读代码。（麻蛋，为什么找不到现成的资料 =.= ）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探">
+<meta property="og:url" content="http://blog.luckymore.wang/2016/12/14/Read-stdlib-of-swift3-StringBuffer/index.html">
+<meta property="og:site_name" content="luckymore的学习笔记">
+<meta property="og:description" content="_StringCore 的 owner 到底是什么玩意儿？
+为什么有些有 owner 有些没 owner ？
+代码注释里所说的 String 共享 Buffer 究竟是怎么回事 ？
+_StringBuffer 是个啥玩意儿 ？
+带着一系列的问题，继续去读代码。（麻蛋，为什么找不到现成的资料 =.= ）">
+<meta property="og:updated_time" content="2016-12-14T14:34:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探">
+<meta name="twitter:description" content="_StringCore 的 owner 到底是什么玩意儿？
+为什么有些有 owner 有些没 owner ？
+代码注释里所说的 String 共享 Buffer 究竟是怎么回事 ？
+_StringBuffer 是个啥玩意儿 ？
+带着一系列的问题，继续去读代码。（麻蛋，为什么找不到现成的资料 =.= ）">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post'
+  };
+</script>
+
+
+
+  <title> Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探 | luckymore的学习笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">luckymore的学习笔记</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-12-14T22:16:44+08:00" content="2016-12-14">
+              2016-12-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS学习笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS学习笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/14/Read-stdlib-of-swift3-StringBuffer/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/14/Read-stdlib-of-swift3-StringBuffer/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>_StringCore 的 owner 到底是什么玩意儿？</p>
+<p>为什么有些有 owner 有些没 owner ？</p>
+<p>代码注释里所说的 String 共享 Buffer 究竟是怎么回事 ？</p>
+<p>_StringBuffer 是个啥玩意儿 ？</p>
+<p>带着一系列的问题，继续去读代码。（麻蛋，为什么找不到现成的资料 =.= ）</p>
+<a id="more"></a> 
+<p>首先讲一讲已有的资料是怎么讲String的内存管理机制。</p>
+<p>在 Swift Programming Language 中， 有这样一段描述：</p>
+<blockquote>
+<p>Swift 的String类型是值类型。 如果您创建了一个新的字符串，那么当其进行常量、变量赋值操作，或在函数/方法中传递时，会进行值拷贝。 任何情况下，都会对已有字符串值创建新副本，并对该新副本进行传递或赋值操作。 值类型在 结构体和枚举是值类型 中进行了详细描述。</p>
+<p>Swift 默认字符串拷贝的方式保证了在函数/方法中传递的是字符串的值。 很明显无论该值来自于哪里，都是您独自拥有的。 您可以确信传递的字符串不会被修改，除非你自己去修改它。</p>
+<p>在实际编译时，Swift 编译器会优化字符串的使用，使实际的复制只发生在绝对必要的情况下，这意味着您将字符串作为值类型的同时可以获得极高的性能。</p>
+</blockquote>
+<p>在 <code>String</code> 的源码注释中，有这样的解释：</p>
+<blockquote>
+<p>Although strings in Swift have value semantics, strings use a copy-on-write<br>strategy to store their data in a buffer. This buffer can then be shared<br>by different copies of a string. A string’s data is only copied lazily,<br>upon mutation, when more than one string instance is using the same<br>buffer. Therefore, the first in any sequence of mutating operations may<br>cost O(<em>n</em>) time and space.</p>
+<p>When a string’s contiguous storage fills up, a new buffer must be allocated<br>and data must be moved to the new storage. String buffers use an<br>exponential growth strategy that makes appending to a string a constant<br>time operation when averaged over many append operations.</p>
+</blockquote>
+<p>首先 String 是一个结构体，不再是一个对象，所以在函数/方法传递中，直接进行值拷贝。然而在 <code>Swift Programming Language</code> 中也有提到过，在实际情况下，只会在绝对必要的情况下进行复制，所以可以保证 <code>String</code> 在是结构体的情况下也保持极高的性能。</p>
+<p>在 <code>String</code> 源码的注释中，我们可以从更深层次的角度去理解这个“优化”——“use a copy-on-write stragety to store their data in buffer”，有一个 <code>Buffer</code> 的概念，这个 Buffer 可以被多个 string 共享。</p>
+<p>下面是一个 Demo：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> str = <span class="string">"Hello, playground"</span></div><div class="line"><span class="built_in">print</span> (str.characters)</div><div class="line"><span class="comment">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x00000001144388d0), _countAndFlags: 17, _owner: nil))</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">printStr</span><span class="params">(<span class="number">_</span> strInFunction:String)</span></span> &#123;</div><div class="line">    <span class="built_in">print</span> (strInFunction.characters)</div><div class="line">    <span class="comment">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x000000010d7d48d0), _countAndFlags: 17, _owner: nil))</span></div><div class="line">	<span class="comment">//通过方法参数传过去的 String 实际是拷贝，但是指向了同一块内存区域。</span></div><div class="line">&#125;</div><div class="line">printStr(str)</div><div class="line"><span class="keyword">let</span> anotherStr = str + <span class="string">"!"</span></div><div class="line"><span class="built_in">print</span>(anotherStr.characters)</div><div class="line"><span class="comment">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000610000264e60), _countAndFlags: 18, _owner: Optional(Swift._HeapBufferStorage&lt;Swift._StringBufferIVars, Swift.UInt16&gt;)))</span></div><div class="line"><span class="comment">//这里对 str 做了一个加法，可以看到指向了一个完全不同的地址，并且拥有了一个 _owner</span></div></pre></td></tr></table></figure>
+<p>在上一篇文章中，我们有分析过 <code>String</code> 的结构，有一个 <code>_StringCore</code> 的结构体的属性，这个属性真正存储了 <code>String</code> 的数据结构，一个是 <code>_baseAddress</code> 是一个指针类型， 一个是 <code>_countAndFlags</code> 是长度，还有一个 <code>owner</code>，可以为<code>nil</code> 也可能是一个<code>_HeapBufferStorage</code> 但是具体作用位置，像上面的代码中，我们对一个 <code>str</code> 作了一个加法的产物就会有一个 <code>_owner</code>.</p>
+<p>我们可以看到， 当对 str 进行一次值拷贝的时候，两个 str 实际上共享着同一块内存区域，即<code>0x00000001144388d0</code>。而做了加法后，结果的 <code>String</code> 指向的是一个完全不同的地址。</p>
+<h3 id="StringBuffer和HeapBuffer">StringBuffer和HeapBuffer</h3><p><code>String</code> 可以由 <code>_StringBuffer</code> 来构建的，同样的，<code>_StringCore</code> 也是，我们来找找 _StringBuffer 的代码来一探究竟。</p>
+<p><code>_StringBuffer</code> 同样是一个结构体，并且只有一个属性 <code>_storage</code> 类型为 <code>_HeapBuffer&lt;_StringBufferIVars, UTF16.CodeUnit&gt;</code></p>
+<p>所以我们先看看 <code>HeapBuffer</code> 是什么样的结构。</p>
+<p><code>Heap</code> 众所周知，是<code>堆</code>，堆内存是区别于栈区、全局数据区和代码区的另一个内存区域。堆允许程序在运行时动态地申请某个大小的内存空间。最大的特点就是可以<code>动态分配</code>，<code>String</code>的<code>Buffer</code>是存储在堆上面的。</p>
+<blockquote>
+<p>When a string’s contiguous storage fills up, a new buffer must be allocated<br>and data must be moved to the new storage. String buffers use an<br>exponential growth strategy that makes appending to a string a constant<br>time operation when averaged over many append operations.</p>
+</blockquote>
+<p>从这段解释也可以验证，当然，似乎很多编程语言在处理 <code>String</code> 的内存管理的时候都是使用的堆。</p>
+<p>回过头，我们来看看 <code>HeapBuffer</code> 到底是什么个情况，打开<code>HeapBuffer.swift</code>，我们惊喜地看到了至今为止看到的第一个 <code>class</code> 即类，<code>Swift Standard Library</code> 的 <code>class</code> 是屈指可数的。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="comment">// @testable (test/Prototypes/MutableIndexableDict.swift)</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">_HeapBufferStorage</span>&lt;<span class="title">Value</span>, <span class="title">Element</span>&gt; </span>&#123;</div><div class="line">  <span class="keyword">public</span> <span class="keyword">init</span>() &#123;&#125;</div><div class="line"></div><div class="line">  <span class="comment">/// The type used to actually manage instances of</span></div><div class="line">  <span class="comment">/// `_HeapBufferStorage&lt;Value, Element&gt;`.</span></div><div class="line">  <span class="keyword">typealias</span> <span class="type">Buffer</span> = _HeapBuffer&lt;<span class="type">Value</span>, <span class="type">Element</span>&gt;</div><div class="line">  <span class="keyword">deinit</span> &#123;</div><div class="line">    <span class="type">Buffer</span>(<span class="keyword">self</span>)._value.deinitialize()</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">final</span> <span class="function"><span class="keyword">func</span> <span class="title">__getInstanceSizeAndAlignMask</span><span class="params">()</span></span> -&gt; (<span class="type">Int</span>, <span class="type">Int</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="type">Buffer</span>(<span class="keyword">self</span>)._allocatedSizeAndAlignMask()</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>类和结构体、枚举最大的不同就是它是引用传递的，到了最底层果然是有一个<code>引用</code>了。<br>而这个类的名称非常的眼熟，之前 <code>String.characters</code>的时候可以发现 <code>_StringCore</code>的 <code>_owner</code> 就是一个这个类型的对象，我们可以猜测<code>_owner</code>就是这个<code>_StringCore</code>所享有的<code>堆</code>。</p>
+<p>然而，对于<code>_HeapBufferStorage&lt;Value, Element&gt;</code>， Swift 依然使用了一个结构体<code>_HeapBuffer&lt;Value,Element&gt;</code>来管理，该结构体持有特定的一个 <code>Storage</code> 并且实现相关API, <code>Value</code> 为指针，<code>Element</code> 指针对应的对象类型。类似分配内存的操作也是在<code>_HeapBuffer</code>中调用对应的方法来做到的。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">internal</span> <span class="function"><span class="keyword">func</span> <span class="title">_allocatedSize</span><span class="params">()</span></span> -&gt; <span class="type">Int</span> &#123;</div><div class="line">   <span class="keyword">return</span> _swift_stdlib_malloc_size(_address)</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>再往下就是更底层的东西了，先不往下看。</p>
+<p>在<code>_StringBuffer</code> 中， <code>Value</code> 是一个 <code>_StringBufferIVars</code> 的结构体， <code>Element</code> 是一个 <code>UTF16.CodeUnit</code>。<code>_StringBufferIVars</code> 实际上是作为指针的意义存在的，当然它本身也有一些属性，包括<code>_usedEnd</code>(结尾地址的下一个位置）,<code>capacityAndElementShift</code>同时用来表示容量以及元素长度。  </p>
+<p>然后我发现看起来有点困难了，所以我决定接下来做一件工作，把 <code>_StringCore</code> -&gt; <code>_StringBuffer</code> -&gt; <code>_HeapBuffer</code> 中的几个关键元素一一对应上，越是底层越是难懂，那么从我们已经大致理解的<code>_StringCore</code>入手来对应底层的东西也许会有收获。</p>
+<h4 id="_StringCore-_baseAddress_起始地址">_StringCore._baseAddress  起始地址</h4><p><strong>对应 _StringBuffer.start</strong></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="comment">// @testable</span></div><div class="line"><span class="keyword">var</span> start: <span class="type">UnsafeMutableRawPointer</span> &#123;</div><div class="line">	<span class="keyword">return</span> <span class="type">UnsafeMutableRawPointer</span>(_storage.baseAddress)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先，这是一个 <code>UnsafeMutableRawPointer</code> 对象，参数是 _storage.baseAddress，对应 _HeapBuffer.baseAddress</p>
+<p><strong>对应 _HeapBuffer.baseAddress</strong></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="comment">// @testable</span></div><div class="line"><span class="keyword">var</span> baseAddress: <span class="type">UnsafeMutablePointer</span>&lt;<span class="type">Element</span>&gt; &#123;</div><div class="line">	<span class="keyword">return</span> (_HeapBuffer._elementOffset() + _address).assumingMemoryBound(</div><div class="line">  	to: <span class="type">Element</span>.<span class="keyword">self</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>_elementOffset() 针对特定<code>Element</code> 是一个固定的值，<br>_address 是其持有的对象 _storage（类型是class的_HeapBufferStorage）的指针</p>
+<p>所以我们可以理解，这个<code>_baseAddress</code> 起始地址跟这个对象引用相关</p>
+<h4 id="_StringCore-count_长度">_StringCore.count  长度</h4><p><strong>对应 _StringBuffer.usedCount</strong></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> usedCount: <span class="type">Int</span> &#123;</div><div class="line">   <span class="keyword">return</span> (usedEnd - start) &gt;&gt; elementShift</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>usedEnd 是 <code>_StringBufferIVars</code> 中的一个属性 对应 <code>HeapBuffer</code>中的 <code>Value</code>，</p>
+<blockquote>
+<p>A past-the-end pointer for this buffer’s stored data.<br>即末尾的后一个</p>
+</blockquote>
+<p>start 就是起始位置，之前有提过</p>
+<p>elementShift 也是 <code>Value</code> 中的一个属性，1代表 UTF-16，其他则是 0， 如果是 UTF-16 的话就要右移一位，一个 UTF-16 有两个字节。</p>
+<blockquote>
+<p>1 if the buffer stores UTF-16; 0 otherwise.</p>
+</blockquote>
+<h4 id="_StringCore-owner">_StringCore.owner</h4><p><strong>对应 _StringBuffer.storage</strong>，即 HeapBuffer 本身。</p>
+<h2 id="从owner来看不同情况下String的创建方式_以及_String的加法">从owner来看不同情况下String的创建方式 以及 String的加法</h2><ul>
+<li>字面量：owner:nil</li>
+<li>加法、append、插值： owner都不为nil</li>
+</ul>
+<p>通过实验可以发现，只有在直接使用字面量来对 String 进行创建的时候，对应String的<code>StringCore</code>是没有<code>owner</code>的，</p>
+<p>而通过运算符、append、插值等方法构建出来的 String， 即使值相同，它们所对应的地址空间也是不同的，owner 也不同。</p>
+<blockquote>
+<p>在实际编译时，Swift 编译器会优化字符串的使用，使实际的复制只发生在绝对必要的情况下，这意味着您将字符串作为值类型的同时可以获得极高的性能。</p>
+</blockquote>
+<p>可以猜测，同样的值共享相同的Buffer，这点是在编译时做的优化，而在实际运行时，并没有办法做到这么完美的优化。</p>
+<p>我们来看一个 String 加法的具体实现。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> + <span class="params">(lhs: String, rhs: String)</span></span> -&gt; <span class="type">String</span> &#123;</div><div class="line">	<span class="keyword">if</span> lhs.isEmpty &#123;</div><div class="line">	  <span class="keyword">return</span> rhs</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">var</span> lhs = lhs</div><div class="line">	lhs._core.append(rhs._core)</div><div class="line">	<span class="keyword">return</span> lhs</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>String 的加法实际上是对 <code>_StringCore</code> 做 <code>append</code>，因为都是结构体，所以完全不用考虑重新创建一个新的 string</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">  @inline(never)</div><div class="line">  <span class="keyword">mutating</span> <span class="function"><span class="keyword">func</span> <span class="title">append</span><span class="params">(<span class="number">_</span> rhs: _StringCore)</span></span> &#123;</div><div class="line">    _invariantCheck()</div><div class="line">    <span class="keyword">let</span> minElementWidth</div><div class="line">    = elementWidth &gt;= rhs.elementWidth</div><div class="line">      ? elementWidth</div><div class="line">      : rhs.isRepresentableAsASCII() ? <span class="number">1</span> : <span class="number">2</span></div><div class="line"></div><div class="line">    <span class="keyword">let</span> destination = _growBuffer(</div><div class="line">      <span class="built_in">count</span> + rhs.<span class="built_in">count</span>, minElementWidth: minElementWidth)</div><div class="line"></div><div class="line">    <span class="keyword">if</span> _fastPath(rhs.hasContiguousStorage) &#123;</div><div class="line">      _StringCore._copyElements(</div><div class="line">        rhs._baseAddress!, srcElementWidth: rhs.elementWidth,</div><div class="line">        dstStart: destination, dstElementWidth:elementWidth, <span class="built_in">count</span>: rhs.<span class="built_in">count</span>)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span> &#123;</div><div class="line">#<span class="keyword">if</span> _runtime(_ObjC)</div><div class="line">      _sanityCheck(elementWidth == <span class="number">2</span>)</div><div class="line">      _cocoaStringReadAll(rhs.cocoaBuffer!,</div><div class="line">        destination.assumingMemoryBound(to: <span class="type">UTF16</span>.<span class="type">CodeUnit</span>.<span class="keyword">self</span>))</div><div class="line">#<span class="keyword">else</span></div><div class="line">      _sanityCheckFailure(<span class="string">"subscript: non-native string without objc runtime"</span>)</div><div class="line">#endif</div><div class="line">    &#125;</div><div class="line">    _invariantCheck()</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>_StringCore 里的代码就看的很难受了。 这里有几个关键点：</p>
+<ul>
+<li>minElementWidth 最小的元素长度，可能是 UT8-16 两位，也可能是1位（ASCII），做加法的时候显然要按照更小的那个来处理。 </li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">mutating</span> <span class="function"><span class="keyword">func</span> <span class="title">_growBuffer</span><span class="params">(</span></span></div><div class="line">  <span class="number">_</span> newSize: Int, minElementWidth: Int</div><div class="line">) -&gt; <span class="type">UnsafeMutableRawPointer</span> &#123;</div><div class="line">  <span class="keyword">let</span> (newCapacity, existingStorage)</div><div class="line">    = _claimCapacity(newSize, minElementWidth: minElementWidth)</div><div class="line"></div><div class="line">  <span class="keyword">if</span> _fastPath(existingStorage != <span class="literal">nil</span>) &#123;</div><div class="line">    <span class="keyword">return</span> existingStorage!</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">let</span> oldCount = <span class="built_in">count</span></div><div class="line"></div><div class="line">  _copyInPlace(</div><div class="line">    newSize: newSize,</div><div class="line">    newCapacity: newCapacity,</div><div class="line">    minElementWidth: minElementWidth)</div><div class="line"></div><div class="line">  <span class="keyword">return</span> _pointer(toElementAt:oldCount)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><p>_growBuffer 函数，根据元素个数、元素长度获取空间，这里存在两种情况，一种是现有的 native buffer 可以找到足够的空间存放需要添加的 String， 直接分配返回， 另一种是需要开辟新的空间，会把原先的空间翻倍。growBuffer 返回的是可以用来存放需要添加的 String 的初始地址</p>
+</li>
+<li><p>_StringCore._copyElements 这是一个静态方法，从实现上来看，直接对内存操作，把 rhs 直接拷贝到目标位置上。</p>
+</li>
+</ul>
+<p>总的来说，就是</p>
+<ul>
+<li>1.统一元素长度</li>
+<li>2.获取空间</li>
+<li>3.拷贝</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">var str = &quot;Hello, playground&quot;</div><div class="line"></div><div class="line">print(str.characters)</div><div class="line">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000000112e55960), _countAndFlags: 17, _owner: nil))</div><div class="line"></div><div class="line">str += String()</div><div class="line">print(str.characters)</div><div class="line"></div><div class="line">let savedStr = str;</div><div class="line"></div><div class="line">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000610000073520), _countAndFlags: 17, _owner: Optional(Swift._HeapBufferStorage&lt;Swift._StringBufferIVars, Swift.UInt16&gt;)))</div><div class="line"></div><div class="line">str += &quot;!&quot;</div><div class="line">print(str.characters)</div><div class="line">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000610000073520), _countAndFlags: 18, _owner: Optional(Swift._HeapBufferStorage&lt;Swift._StringBufferIVars, Swift.UInt16&gt;)))</div><div class="line">print(savedStr.characters)</div><div class="line">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000610000073520), _countAndFlags: 17, _owner: Optional(Swift._HeapBufferStorage&lt;Swift._StringBufferIVars, Swift.UInt16&gt;)))</div></pre></td></tr></table></figure>
+<p>再来看上面这段代码的输出：<br>第一个是字面常量，地址是<code>0x0000000112e55960</code><br>对str 做 += 操作，对象是一个空的 String， 地址是 <code>0x0000610000073520</code>，并且有了 owner</p>
+<p>并且这两个的地址是不同的，一个是编译时就确定的，一个是要在运行时才能确定。<br>我的猜测是在编译时 Swift 的优化机制会统一处理 字面量的 String。 到了运行时，便会另外开辟空间去处理，另外一方面，前者没有 HeapBuffer 而后者有，我甚至可以猜测，两者的存储方式可能都有所差别。然而我并没有找到相关的文献来证明这个观点。</p>
+<p>再次对它做 += 操作，对象是一个非空 String, 地址依然是 0x0000610000073520，只是长度变成了18<br>这也验证了上述代码，对_StringCore做 append 操作，直接对内存进行操作，并没有改变它的起始地址。</p>
+<p>再者，在对 str 做第二次 += 操作前，我们声明了另外一个 savedStr 并且将 str 拷贝给它， 最后输出发现他们依然共享同一个起始地址，只是长度不同，所以他们依然共享了 StringBuffer。</p>
+<h2 id="总结">总结</h2><p>其实从一开始就发现的一个疑问，为什么通过字面常量初始化的 <code>String</code> 没有 owner 而其他方式初始化的都有，通过阅读代码并没有得到一个确切的解释。依然只能够通过两者最明显的区别来猜测：编译时 VS 运行时。</p>
+<p>在编译时，Swift 会针对 String 的字面量做优化，相同的字面量共享 Buffer。<br>在运行时，每个 StringCore 会有一个 Native Buffer，对 String 做修改实际上是修改 _StringCore， 处理过程中 _StringCore 依然会优先复用本身的 Buffer 并且使用最高效率的方式进行拷贝。</p>
+<p>另外，本文还主要介绍了 StringBuffer 的具体结构和原理， 以及与 _StringCore 的对应关系，而实际上，_StringBuffer 可以用来构造一个完整的 <code>String</code>， 更多情况下，它是一个更底层的 <code>String</code> 的存储模型，从更高层次封装了 <code>_HeapBufferStorage</code>。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/08/Read-stdlib-of-swift3-0-String/" rel="next" title="Swift 3.0 标准库源码阅读笔记——String">
+                <i class="fa fa-chevron-left"></i> Swift 3.0 标准库源码阅读笔记——String
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/12/14/Read-stdlib-of-swift3-StringBuffer/"
+                   data-title="Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探" data-url="http://blog.luckymore.wang/2016/12/14/Read-stdlib-of-swift3-StringBuffer/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="http://tva4.sinaimg.cn/crop.0.0.512.512.180/87939914jw8eus1v8o70mj20e80e80tc.jpg" alt="luckymore" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">luckymore</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">14</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/luckymore0520" target="_blank">
+                  <i class="fa fa-github fa-fw"></i> GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2274597140/profile" target="_blank">
+                  <i class="fa fa-weibo fa-fw"></i> Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">友情链接</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.callmewhy.com/" target="_blank">CallMeWhy</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ios.dog/" target="_blank">Boolean93</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.zyliu.com/" target="_blank">Sheep</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.cee.moe/" target="_blank">Cee</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#StringBuffer和HeapBuffer"><span class="nav-number">1.</span> <span class="nav-text">StringBuffer和HeapBuffer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#_StringCore-_baseAddress_起始地址"><span class="nav-number">1.1.</span> <span class="nav-text">_StringCore._baseAddress  起始地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#_StringCore-count_长度"><span class="nav-number">1.2.</span> <span class="nav-text">_StringCore.count  长度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#_StringCore-owner"><span class="nav-number">1.3.</span> <span class="nav-text">_StringCore.owner</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从owner来看不同情况下String的创建方式_以及_String的加法"><span class="nav-number"></span> <span class="nav-text">从owner来看不同情况下String的创建方式 以及 String的加法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luckymore</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"luckymore0520"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.2" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      isMobile() && FastClick.attach(document.body);
+
+      // Define Motion Sequence.
+      motionIntegrator
+        .add(motionMiddleWares.logo)
+        .add(motionMiddleWares.menu)
+        .add(motionMiddleWares.backToTop)
+        .add(motionMiddleWares.postList)
+        .add(motionMiddleWares.sidebar);
+
+      // Bootstrap Motion.
+      motionIntegrator.bootstrap();
+    });
+  </script>
+
+  
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
