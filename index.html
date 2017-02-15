@@ -187,6 +187,105 @@
             
             
               
+                <a class="post-title-link" href="/2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/" itemprop="url">
+                  Swift 3.0 标准库源码阅读笔记——Sequence 和 Collection
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-12-29T23:51:53+08:00" content="2016-12-29">
+              2016-12-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS学习笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS学习笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>在日常的编程中，关于集合类型的特性大部分情况下用 <code>Swift</code> 标准库提供的 <code>Set</code>、<code>Dictionary</code>以及 <code>Array</code> 完全足够了， 当然，必要时也可以自己定制自己的集合，这就意味着需要了解与之相关的协议，而理解这些协议也对于我们更好地使用已有的集合类型有莫大帮助。 而集合相关的协议主要是 <code>Sequence</code> 与 <code>Collection</code>。</p>
+<p>关于 <code>Swift</code> 的 <code>Sequence</code> 和 <code>Collection</code> 实际上包含了一系列的协议，为了理解其工作原理并且正确使用，需要理清这些协议之间的关系以及各自的用途。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
                 <a class="post-title-link" href="/2016/12/14/Read-stdlib-of-swift3-StringBuffer/" itemprop="url">
                   Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探
                 </a>
@@ -1058,111 +1157,6 @@
 
 
     
-      
-
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                <a class="post-title-link" href="/2015/06/03/tracer-based-on-aspects-and-jspatch/" itemprop="url">
-                  基于Aspects和JSPatch的热埋点方案
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-06-03T20:49:09+08:00" content="2015-06-03">
-              2015-06-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/iOS学习笔记/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS学习笔记</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/06/03/tracer-based-on-aspects-and-jspatch/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/03/tracer-based-on-aspects-and-jspatch/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <h3 id="关于Aspects">关于Aspects</h3><p><a href="https://github.com/steipete/Aspects">https://github.com/steipete/Aspects</a></p>
-<p>aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种实现方案。AOP主要实现的目的是针对业务处理过程中的切面进行提取，它所面对的是处理过程中的某个步骤或阶段，以获得逻辑过程中各部分之间低耦合性的隔离效果。<br>以埋点为例，虽然现在已经有像友盟这样强大的第三方埋点方案，但是这并不能满足一些公司的业务需求，如果要完全自定义地进行埋点，监听并统计用户的行为，使用传统的方案，必然导致对整个项目的代码进行大范围的修改。而使用面向切面编程的思想，则可以将埋点和系统原有的逻辑解耦，悄悄地完成埋点。</p>
-<hr>
-<p>下面来看看Aspects是如何帮助我们实现这点的。</p>
-<p>还是举个例子来说明：<br>假设我们要统计某些页面的显示的次数，以往使用友盟来统计页面访问我们会这么做<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">- (void)viewWillAppear:(<span class="type">BOOL</span>)animated &#123;</div><div class="line">    [<span class="keyword">super</span> viewWillAppear:animated];</div><div class="line">    <span class="comment">//do something</span></div><div class="line">    <span class="keyword">if</span>(<span class="keyword">self</span>.title)&#123;</div><div class="line">        [<span class="type">MobClick</span> beginLogPageView:<span class="keyword">self</span>.title];</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>聪明一点的做法当然是可以把它写在基类。这样至少不会影响太多的代码。但是如果是其他一些更加个性化的埋点，比如说点击某个按钮，通过不同的方法进入某个页面，注册所消耗的时间统计等等等等。。。。</p>
-<p>有了Aspect 我们可以这么做<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[UIViewController aspect_hookSelector:@selector(viewWillAppear:) withOptions:AspectPositionAfter usingBlock:^(id&lt;AspectInfo&gt; aspectInfo) &#123;</div><div class="line">    UIViewController* viewController = aspectInfo.instance;</div><div class="line">    if (viewController.title) &#123;</div><div class="line">        [MobClick beginLogPageView:viewController.title];</div><div class="line">    &#125;</div><div class="line">&#125; error:NULL];</div></pre></td></tr></table></figure></p>
-<p>当然，这块代码完全可以和原有的逻辑隔离。<br>先解释一下，Aspects针对NSObject实现了aspect_hookSelector的方法，顾名思义，使用一个钩hook住了UIViewController的viewWillAppear方法，withOptions可以有两个参数，一个是AspectPositionAfter，另一个是AspectPositionBefore，分别代表在原有方法执行前或者原有方法执行后执行该block，根本上相当于利用oc的runtime特性替换了原有的方法。<br>通过aspectInfo中的instance和arguments属性可以分别获得方法的方法体和参数，基本上也就是获得了整个方法执行的上下文。<br><strong><em>特别需要注意的是，同一个继承树上的同一个方法只能被hook一次</em></strong></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/03/tracer-based-on-aspects-and-jspatch/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1205,7 +1199,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">14</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1287,7 +1281,7 @@
       <div class="footer-inner"> <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2016</span>
+  <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>
