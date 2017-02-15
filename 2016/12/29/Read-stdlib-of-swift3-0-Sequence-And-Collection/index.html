@@ -1,0 +1,758 @@
+<!doctype html>
+<html class="theme-next use-motion ">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+<link rel="stylesheet" type="text/css" href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" />
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.2"/>
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+<meta name="description" content="在日常的编程中，关于集合类型的特性大部分情况下用 Swift 标准库提供的 Set、Dictionary以及 Array 完全足够了， 当然，必要时也可以自己定制自己的集合，这就意味着需要了解与之相关的协议，而理解这些协议也对于我们更好地使用已有的集合类型有莫大帮助。 而集合相关的协议主要是 Sequence 与 Collection。
+关于 Swift 的 Sequence 和 Collecti">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift 3.0 标准库源码阅读笔记——Sequence 和 Collection">
+<meta property="og:url" content="http://blog.luckymore.wang/2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/index.html">
+<meta property="og:site_name" content="luckymore的学习笔记">
+<meta property="og:description" content="在日常的编程中，关于集合类型的特性大部分情况下用 Swift 标准库提供的 Set、Dictionary以及 Array 完全足够了， 当然，必要时也可以自己定制自己的集合，这就意味着需要了解与之相关的协议，而理解这些协议也对于我们更好地使用已有的集合类型有莫大帮助。 而集合相关的协议主要是 Sequence 与 Collection。
+关于 Swift 的 Sequence 和 Collecti">
+<meta property="og:image" content="https://github.com/luckymore0520/Read-stdlib-of-Swift3.0/raw/master/SequenceAndCollection.png">
+<meta property="og:updated_time" content="2017-02-15T03:02:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Swift 3.0 标准库源码阅读笔记——Sequence 和 Collection">
+<meta name="twitter:description" content="在日常的编程中，关于集合类型的特性大部分情况下用 Swift 标准库提供的 Set、Dictionary以及 Array 完全足够了， 当然，必要时也可以自己定制自己的集合，这就意味着需要了解与之相关的协议，而理解这些协议也对于我们更好地使用已有的集合类型有莫大帮助。 而集合相关的协议主要是 Sequence 与 Collection。
+关于 Swift 的 Sequence 和 Collecti">
+<meta name="twitter:image" content="https://github.com/luckymore0520/Read-stdlib-of-Swift3.0/raw/master/SequenceAndCollection.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post'
+  };
+</script>
+
+
+
+  <title> Swift 3.0 标准库源码阅读笔记——Sequence 和 Collection | luckymore的学习笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">luckymore的学习笔记</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Swift 3.0 标准库源码阅读笔记——Sequence 和 Collection
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-12-29T23:51:53+08:00" content="2016-12-29">
+              2016-12-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS学习笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS学习笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>在日常的编程中，关于集合类型的特性大部分情况下用 <code>Swift</code> 标准库提供的 <code>Set</code>、<code>Dictionary</code>以及 <code>Array</code> 完全足够了， 当然，必要时也可以自己定制自己的集合，这就意味着需要了解与之相关的协议，而理解这些协议也对于我们更好地使用已有的集合类型有莫大帮助。 而集合相关的协议主要是 <code>Sequence</code> 与 <code>Collection</code>。</p>
+<p>关于 <code>Swift</code> 的 <code>Sequence</code> 和 <code>Collection</code> 实际上包含了一系列的协议，为了理解其工作原理并且正确使用，需要理清这些协议之间的关系以及各自的用途。</p>
+<a id="more"></a> 
+<p>从用途上来说， 一个 <code>Collection</code> 必然是一个 <code>Sequence</code> ，简而言之，<code>Collection</code> 包含了 <code>Sequence</code> 所有的特性，同时又具备更加丰富的功能。</p>
+<p><code>Sequence</code> 的核心是 <code>迭代</code>，它可以生成一个迭代器，完成遍历，即为其核心也是唯一的功能，在<code>遍历</code>的基础上，<code>Swift</code> 为 <code>Sequence</code> 实现了诸多诸如 <code>map</code>、<code>filter</code> 这些大家用的比较多的方法的默认实现。</p>
+<p><code>Collection</code> 相比于 <code>Sequence</code>， 最大的特点在于<code>下标</code>，即不需要遍历也可以取到任意位置的元素（元素的位置是固定的），这就意味着 <code>Collection</code> 在可遍历的基础上增加了诸多下标相关的功能。</p>
+<p>具体的差别将在下文通过源码来具体分析。</p>
+<p>从实际的代码关系上来说，用一张图即可说明：</p>
+<p><img src="https://github.com/luckymore0520/Read-stdlib-of-Swift3.0/raw/master/SequenceAndCollection.png" alt=""></p>
+<p>两者同作为协议， <code>Collection</code> 继承与 <code>Sequence</code>， 同时又继承了 <code>Indexable</code> 这个关于 <code>下标索引</code> 的协议，  <code>Sequence</code> 依赖于 <code>IteratalProtocol</code> 这个用于实现迭代的协议。 <code>Collection</code> 本身具有针对迭代的默认实现，依赖于 <code>IndexingIterator</code>。</p>
+<p>具体的实现，同样会在下文配合源码进行分析。</p>
+<h2 id="Sequence">Sequence</h2><h3 id="IteratorProtocol_迭代器">IteratorProtocol  迭代器</h3><p><code>IteratorProtocol</code> 这个协议和 <code>Sequence</code> 是紧密相连的，<code>Sequence</code> 通过创建一个迭代器来访问对应位置的元素。无论是使用 <code>for</code> 循环还是 <code>while</code> 语句，实质上都是生成了一个迭代器来进行工作。</p>
+<p>比如：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> animals = [<span class="string">"Antelope"</span>, <span class="string">"Butterfly"</span>, <span class="string">"Camel"</span>, <span class="string">"Dolphin"</span>]</div><div class="line"><span class="keyword">for</span> animal <span class="keyword">in</span> animals &#123;</div><div class="line">    <span class="built_in">print</span>(animal)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>实质上做的工作是：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> animalIterator = animals.makeIterator()</div><div class="line"><span class="keyword">while</span> <span class="keyword">let</span> animal = animalIterator.next() &#123;</div><div class="line">	<span class="built_in">print</span>(animal)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>通过 <code>makeIterator</code> 创建一个迭代器，调用迭代器的 <code>next()</code> 方法获取下一个元素，直至返回 <code>nil</code></p>
+<h3 id="使用Demo">使用Demo</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">CountDownIterator</span>: <span class="title">IteratorProtocol</span> </span>&#123;</div><div class="line">    <span class="keyword">let</span> countdown: <span class="type">Countdown</span></div><div class="line">    <span class="keyword">var</span> times = <span class="number">0</span></div><div class="line">    </div><div class="line">    <span class="keyword">init</span>(<span class="number">_</span> countdown: <span class="type">Countdown</span>) &#123;</div><div class="line">        <span class="keyword">self</span>.countdown = countdown;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">mutating</span> <span class="function"><span class="keyword">func</span> <span class="title">next</span><span class="params">()</span></span> -&gt; <span class="type">Int</span>? &#123;</div><div class="line">        <span class="keyword">let</span> nextNumber = countdown.start - times</div><div class="line">        <span class="keyword">guard</span> nextNumber &gt; <span class="number">0</span> <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> <span class="literal">nil</span></div><div class="line">        &#125;</div><div class="line">        times += <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> nextNumber</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Countdown</span>: <span class="title">Sequence</span> </span>&#123;</div><div class="line">    <span class="keyword">let</span> start: <span class="type">Int</span></div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">makeIterator</span><span class="params">()</span></span> -&gt; <span class="type">CountDownIterator</span> &#123;</div><div class="line">        <span class="keyword">return</span> <span class="type">CountDownIterator</span>(<span class="keyword">self</span>)</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">let</span> threeTwoOne = <span class="type">Countdown</span>(start: <span class="number">3</span>)</div><div class="line"><span class="keyword">for</span> <span class="built_in">count</span> <span class="keyword">in</span> threeTwoOne &#123;</div><div class="line">    <span class="built_in">print</span>(<span class="string">"<span class="subst">\(<span class="built_in">count</span>)</span>"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里 <code>Countdown</code> 作为一个 <code>Sequence</code> 需要实现一个 <code>makeIterator</code> 的方法，返回一个 实现了<code>IteratorProtocol</code>的对象，通过该对象来实现迭代。</p>
+<h3 id="IteratorProtocol">IteratorProtocol</h3><p><code>IteratorProtocol</code> 本身只定义了一个方法—— next()。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">IteratorProtocol</span> </span>&#123;</div><div class="line">  <span class="comment">/// The type of element traversed by the iterator.</span></div><div class="line">  associatedtype <span class="type">Element</span></div><div class="line">  <span class="keyword">mutating</span> <span class="function"><span class="keyword">func</span> <span class="title">next</span><span class="params">()</span></span> -&gt; <span class="type">Element</span>?</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>associatedtype</code> 关联类型， Swift 中使用这个关键字来代表泛型，这里的 <code>Element</code> 的类型是自定义的。</p>
+<p>Demo源代码参见 <a href="https://github.com/luckymore0520/Read-stdlib-of-Swift3.0/tree/master/SequenceAndCollection.playground" target="_blank" rel="external">SequenceAndCollection.Playground</a></p>
+<h3 id="Sequence-1">Sequence</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">Sequence</span> </span>&#123;</div><div class="line">  <span class="comment">//迭代器</span></div><div class="line">  associatedtype <span class="type">Iterator</span> : <span class="type">IteratorProtocol</span></div><div class="line">  <span class="comment">//元素的类型</span></div><div class="line">  associatedtype <span class="type">SubSequence</span></div><div class="line">  </div><div class="line">  <span class="comment">// 返回迭代器</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">makeIterator</span><span class="params">()</span></span> -&gt; <span class="type">Iterator</span></div><div class="line"></div><div class="line">  <span class="comment">// 数量</span></div><div class="line">  <span class="keyword">var</span> underestimatedCount: <span class="type">Int</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">  </div><div class="line">  <span class="comment">// 定义了关于 Sequence 的一些方法的声明，实际上这些方法在协议扩展中都给出了高效的默认实现。</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">map</span>&lt;T&gt;<span class="params">(</span></span></div><div class="line">    <span class="number">_</span> transform: <span class="params">(Iterator.Element)</span> <span class="keyword">throws</span> -&gt; <span class="type">T</span></div><div class="line">  ) <span class="keyword">rethrows</span> -&gt; [<span class="type">T</span>]</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">filter</span><span class="params">(</span></span></div><div class="line">    <span class="number">_</span> isIncluded: <span class="params">(Iterator.Element)</span> <span class="keyword">throws</span> -&gt; <span class="type">Bool</span></div><div class="line">  ) <span class="keyword">rethrows</span> -&gt; [<span class="type">Iterator</span>.<span class="type">Element</span>]</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">dropLast</span><span class="params">(<span class="number">_</span> n: Int)</span></span> -&gt; <span class="type">SubSequence</span></div><div class="line">  </div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">drop</span><span class="params">(</span></span></div><div class="line">    <span class="keyword">while</span> predicate: <span class="params">(Iterator.Element)</span> <span class="keyword">throws</span> -&gt; <span class="type">Bool</span></div><div class="line">  ) <span class="keyword">rethrows</span> -&gt; <span class="type">SubSequence</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">prefix</span><span class="params">(<span class="number">_</span> maxLength: Int)</span></span> -&gt; <span class="type">SubSequence</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">prefix</span><span class="params">(</span></span></div><div class="line">    <span class="keyword">while</span> predicate: <span class="params">(Iterator.Element)</span> <span class="keyword">throws</span> -&gt; <span class="type">Bool</span></div><div class="line">  ) <span class="keyword">rethrows</span> -&gt; <span class="type">SubSequence</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">suffix</span><span class="params">(<span class="number">_</span> maxLength: Int)</span></span> -&gt; <span class="type">SubSequence</span></div><div class="line">  </div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">split</span><span class="params">(</span></span></div><div class="line">    maxSplits: Int, omittingEmptySubsequences: Bool,</div><div class="line">    whereSeparator isSeparator: <span class="params">(Iterator.Element)</span> <span class="keyword">throws</span> -&gt; <span class="type">Bool</span></div><div class="line">  ) <span class="keyword">rethrows</span> -&gt; [<span class="type">SubSequence</span>]</div><div class="line"></div><div class="line">  .... </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>Sequence</code> 的核心是 <code>makeIterator</code>，用户实际上只需要实现 <code>makeIterator</code> 方法就可以使用 <code>Swift</code> 标准库为开发者编写的所有高效的关于 <code>Sequence</code> 的方法，总而言之，只需要一个迭代器就足够了。</p>
+<p>我们以 <code>map</code> 方法为例：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">map</span>&lt;T&gt;<span class="params">(</span></span></div><div class="line">    <span class="number">_</span> transform: <span class="params">(Iterator.Element)</span> <span class="keyword">throws</span> -&gt; <span class="type">T</span></div><div class="line">  ) <span class="keyword">rethrows</span> -&gt; [<span class="type">T</span>] &#123;</div><div class="line">    <span class="keyword">let</span> initialCapacity = underestimatedCount</div><div class="line">    <span class="keyword">var</span> result = <span class="type">ContiguousArray</span>&lt;<span class="type">T</span>&gt;()</div><div class="line">    result.reserveCapacity(initialCapacity)</div><div class="line"></div><div class="line">    <span class="keyword">var</span> iterator = <span class="keyword">self</span>.makeIterator()</div><div class="line"></div><div class="line">    <span class="comment">// Add elements up to the initial capacity without checking for regrowth.</span></div><div class="line">    <span class="keyword">for</span> <span class="number">_</span> <span class="keyword">in</span> <span class="number">0</span>..&lt;initialCapacity &#123;</div><div class="line">      result.append(<span class="keyword">try</span> transform(iterator.next()!))</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// Add remaining elements, if any.</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">let</span> element = iterator.next() &#123;</div><div class="line">      result.append(<span class="keyword">try</span> transform(element))</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="type">Array</span>(result)</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>这是 <code>Sequence</code> 中 <code>map</code> 方法的默认实现，代码也很容易看懂，通过创建迭代器，对元素进行遍历，对每个元素执行 <code>transform()</code> 方法，并存进 <code>array</code> 中，最后将 <code>array</code> 返回，从而实现了 <code>map</code> 方法。</p>
+<h2 id="Collection">Collection</h2><h3 id="什么是_Collection_？">什么是 Collection ？</h3><p>首先一个 <code>Collection</code> 必定是一个 <code>Sequence</code>（ <code>Collection</code> 协议本身继承 <code>Sequence</code>)，<code>Collection</code> 的特点在于：</p>
+<ul>
+<li>可遍历多次</li>
+<li>非破坏性</li>
+<li>可使用索引下标访问元素 </li>
+</ul>
+<p>这些特定决定了 Swift 标准库中的 <code>Array</code> 和 <code>Dictionary</code> 实质上都是 <code>Collection</code>。</p>
+<p>要实现一个自定义的 <code>Collection</code> 需要实现<code>startIndex</code> 和 <code>endIndex</code> 属性以及 <code>index(after:)</code> 和 <code>subscript(position: Index) -&gt; _Element { get }</code> 下标方法。</p>
+<p>值得注意的是，默认情况下<code>Collection</code>并不需要实现 <code>Sequence</code> 的 <code>makeIterator</code> 方法也不需要额外定义一个迭代器，因为基于<code>Collection</code> 已有的方法已经可以实现迭代器的功能，在标准库中通过协议扩展的方式以及定义了一个 <code>IndexingIterator</code> 的结构体来为 <code>Collection</code> 完成了默认的 <code>Sequence</code> 实现方案。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//这是默认情况，在Collection的定义中，Iterator就是 IndexingIterator&lt;Self&gt;，意味着如果使用者不自定义 Collection 的 Iterator， 会使用默认的迭代器。</span></div><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Collection</span> <span class="title">where</span> <span class="title">Iterator</span> == <span class="title">IndexingIterator</span>&lt;<span class="title">Self</span>&gt; </span>&#123;</div><div class="line">  <span class="comment">/// Returns an iterator over the elements of the collection.</span></div><div class="line">  <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">makeIterator</span><span class="params">()</span></span> -&gt; <span class="type">IndexingIterator</span>&lt;<span class="type">Self</span>&gt; &#123;</div><div class="line">    <span class="keyword">return</span> <span class="type">IndexingIterator</span>(_elements: <span class="keyword">self</span>)</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">IndexingIterator</span>&lt;</span></div><div class="line">  <span class="title">Elements</span> : <span class="title">_IndexableBase</span></div><div class="line">&gt; : <span class="title">IteratorProtocol</span>, <span class="title">Sequence</span> &#123;</div><div class="line"></div><div class="line">  <span class="keyword">init</span>(_elements: <span class="type">Elements</span>) &#123;</div><div class="line">    <span class="keyword">self</span>._elements = _elements</div><div class="line">    <span class="keyword">self</span>._position = _elements.startIndex</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">public</span> <span class="keyword">mutating</span> <span class="function"><span class="keyword">func</span> <span class="title">next</span><span class="params">()</span></span> -&gt; <span class="type">Elements</span>._Element? &#123;</div><div class="line">    <span class="keyword">if</span> _position == _elements.endIndex &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</div><div class="line">    <span class="keyword">let</span> element = _elements[_position]</div><div class="line">    _elements.formIndex(after: &amp;_position)</div><div class="line">    <span class="keyword">return</span> element</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">internal</span> <span class="keyword">let</span> _elements: <span class="type">Elements</span></div><div class="line">  <span class="keyword">internal</span> <span class="keyword">var</span> _position: <span class="type">Elements</span>.<span class="type">Index</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="Demo">Demo</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">CollectionOfTwo</span>&lt;<span class="title">Element</span>&gt;: <span class="title">Collection</span> </span>&#123;</div><div class="line">    <span class="keyword">let</span> elements: (<span class="type">Element</span>, <span class="type">Element</span>)</div><div class="line">    <span class="keyword">init</span>(<span class="number">_</span> first: <span class="type">Element</span>, <span class="number">_</span> second: <span class="type">Element</span>) &#123;</div><div class="line">        <span class="keyword">self</span>.elements = (first, second)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">var</span> startIndex: <span class="type">Int</span> &#123; <span class="keyword">return</span> <span class="number">0</span> &#125;</div><div class="line">    <span class="keyword">var</span> endIndex: <span class="type">Int</span>   &#123; <span class="keyword">return</span> <span class="number">2</span> &#125;</div><div class="line">    <span class="keyword">subscript</span>(index: <span class="type">Int</span>) -&gt; <span class="type">Element</span> &#123;</div><div class="line">        <span class="keyword">switch</span> index &#123;</div><div class="line">            <span class="keyword">case</span> <span class="number">0</span>: <span class="keyword">return</span> elements.<span class="number">0</span></div><div class="line">            <span class="keyword">case</span> <span class="number">1</span>: <span class="keyword">return</span> elements.<span class="number">1</span></div><div class="line">            <span class="keyword">default</span>: <span class="built_in">fatalError</span>(<span class="string">"Index out of bounds."</span>)</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">index</span><span class="params">(after i: Int)</span></span> -&gt; <span class="type">Int</span> &#123;</div><div class="line">        <span class="built_in">precondition</span>(i &lt; endIndex, <span class="string">"Can't advance beyond endIndex"</span>)</div><div class="line">        <span class="keyword">return</span> i + <span class="number">1</span></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">let</span> collection = <span class="type">CollectionOfTwo</span>(<span class="string">"first"</span>, <span class="string">"second"</span>);</div><div class="line"><span class="built_in">print</span>(collection[<span class="number">0</span>])</div></pre></td></tr></table></figure>
+<p>首先 <code>Collection</code> </p>
+<p>具体可以见 <a href="https://github.com/luckymore0520/Read-stdlib-of-Swift3.0/tree/master/SequenceAndCollection.playground" target="_blank" rel="external">SequenceAndCollection.Playground</a> 中的 Demo</p>
+<p>我们先看看 <code>Collection</code> 协议的定义：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">Collection</span> : <span class="title">_Indexable</span>, <span class="title">Sequence</span> </span>&#123;</div><div class="line"></div><div class="line">  associatedtype <span class="type">IndexDistance</span> : <span class="type">SignedInteger</span> = <span class="type">Int</span></div><div class="line">  </div><div class="line">  associatedtype <span class="type">Iterator</span> : <span class="type">IteratorProtocol</span> = <span class="type">IndexingIterator</span>&lt;<span class="type">Self</span>&gt;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">makeIterator</span><span class="params">()</span></span> -&gt; <span class="type">Iterator</span></div><div class="line">  </div><div class="line">  <span class="comment">//一些扩展方法</span></div><div class="line">  associatedtype <span class="type">SubSequence</span> : _IndexableBase, <span class="type">Sequence</span> = <span class="type">Slice</span>&lt;<span class="type">Self</span>&gt;</div><div class="line">  <span class="keyword">subscript</span>(position: <span class="type">Index</span>) -&gt; <span class="type">Iterator</span>.<span class="type">Element</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">  <span class="keyword">subscript</span>(bounds: <span class="type">Range</span>&lt;<span class="type">Index</span>&gt;) -&gt; <span class="type">SubSequence</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">  associatedtype <span class="type">Indices</span> : _Indexable, <span class="type">Sequence</span> = <span class="type">DefaultIndices</span>&lt;<span class="type">Self</span>&gt;</div><div class="line">  <span class="keyword">var</span> <span class="built_in">indices</span>: <span class="type">Indices</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">prefix</span><span class="params">(upTo end: Index)</span></span> -&gt; <span class="type">SubSequence</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">suffix</span><span class="params">(from start: Index)</span></span> -&gt; <span class="type">SubSequence</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">prefix</span><span class="params">(through position: Index)</span></span> -&gt; <span class="type">SubSequence</span></div><div class="line">  <span class="keyword">var</span> isEmpty: <span class="type">Bool</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">  <span class="keyword">var</span> <span class="built_in">count</span>: <span class="type">IndexDistance</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">_customIndexOfEquatableElement</span><span class="params">(<span class="number">_</span> element: Iterator.Element)</span></span> -&gt; <span class="type">Index</span>??</div><div class="line">  <span class="keyword">var</span> first: <span class="type">Iterator</span>.<span class="type">Element</span>? &#123; <span class="keyword">get</span> &#125;</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">index</span><span class="params">(<span class="number">_</span> i: Index, offsetBy n: IndexDistance)</span></span> -&gt; <span class="type">Index</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">index</span><span class="params">(</span></span></div><div class="line">    <span class="number">_</span> i: Index, offsetBy n: IndexDistance, limitedBy limit: Index</div><div class="line">  ) -&gt; <span class="type">Index</span>?</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">distance</span><span class="params">(from start: Index, to end: Index)</span></span> -&gt; <span class="type">IndexDistance</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>Collection</code> 的协议本身继承了 <code>Sequence</code> 协议，意味着此前提到过的所有 <code>Sequence</code> 所具有的方法它一样具有，它多出来的协议大部分都跟其的 <code>索引</code> 的特性相关。</p>
+<p><code>Collection</code> 的协议还继承了 <code>_Indexable</code> 的协议，<code>_Indexable</code> 协议本身又继承了 <code>_IndexableBase</code> 协议，下面我们从下往上来看。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">_IndexableBase</span> </span>&#123;</div><div class="line">  associatedtype <span class="type">Index</span> : <span class="type">Comparable</span></div><div class="line">  <span class="comment">//这两个需要用户自己实现</span></div><div class="line">  <span class="keyword">var</span> startIndex: <span class="type">Index</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line">  <span class="keyword">var</span> endIndex: <span class="type">Index</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line"></div><div class="line">  associatedtype _Element</div><div class="line"></div><div class="line">  <span class="keyword">subscript</span>(position: <span class="type">Index</span>) -&gt; _Element &#123; <span class="keyword">get</span> &#125;</div><div class="line"></div><div class="line">  associatedtype <span class="type">SubSequence</span></div><div class="line"></div><div class="line">  <span class="keyword">subscript</span>(bounds: <span class="type">Range</span>&lt;<span class="type">Index</span>&gt;) -&gt; <span class="type">SubSequence</span> &#123; <span class="keyword">get</span> &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">_failEarlyRangeCheck</span><span class="params">(<span class="number">_</span> index: Index, bounds: Range&lt;Index&gt;)</span></span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">_failEarlyRangeCheck</span><span class="params">(<span class="number">_</span> index: Index, bounds: ClosedRange&lt;Index&gt;)</span></span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">_failEarlyRangeCheck</span><span class="params">(<span class="number">_</span> range: Range&lt;Index&gt;, bounds: Range&lt;Index&gt;)</span></span></div><div class="line">  <span class="comment">//这个方法需要用户实现	</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">index</span><span class="params">(after i: Index)</span></span> -&gt; <span class="type">Index</span></div><div class="line">  </div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">formIndex</span><span class="params">(after i: <span class="keyword">inout</span> Index)</span></span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先，这里的 <code>Index</code> 作为泛型必须是 <code>Comparable</code> 的，<code>_IndexableBase</code> 实质上就定义了 <code>可索引</code> 的关键成分，包括 <code>startIndex</code>，<code>endIndex</code> 以及<code>index(after:)</code> 方法， 并且定义了下标方法，包括根据下标获得单独一个元素以及根据下标范围获得一个 <code>SubSequence</code></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">_Indexable</span> : <span class="title">_IndexableBase</span> </span>&#123;</div><div class="line"> </div><div class="line">  associatedtype <span class="type">IndexDistance</span> : <span class="type">SignedInteger</span> = <span class="type">Int</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">index</span><span class="params">(<span class="number">_</span> i: Index, offsetBy n: IndexDistance)</span></span> -&gt; <span class="type">Index</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">index</span><span class="params">(</span></span></div><div class="line">    <span class="number">_</span> i: Index, offsetBy n: IndexDistance, limitedBy limit: Index</div><div class="line">  ) -&gt; <span class="type">Index</span>?</div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">formIndex</span><span class="params">(<span class="number">_</span> i: <span class="keyword">inout</span> Index, offsetBy n: IndexDistance)</span></span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">formIndex</span><span class="params">(</span></span></div><div class="line">    <span class="number">_</span> i: <span class="keyword">inout</span> Index, offsetBy n: IndexDistance, limitedBy limit: Index</div><div class="line">  ) -&gt; <span class="type">Bool</span></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">distance</span><span class="params">(from start: Index, to end: Index)</span></span> -&gt; <span class="type">IndexDistance</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>_Indexable</code> 继承自 <code>_IndexableBase</code>，新增了一些关于 <code>Index</code> 的扩展方法，并且增加了一个 <code>IndexDistance</code> 的距离概念。</p>
+<p>当然，这上面两个协议基本上不会被使用，依然推荐使用 <code>Collection</code> 协议，原因很显然，因为它具有最丰富的接口。</p>
+<blockquote>
+<blockquote>
+<p>In most cases, it’s best to ignore this protocol and use the <code>Collection</code><br>protocol instead, because it has a more complete interface.</p>
+</blockquote>
+</blockquote>
+<p>总的来说， <code>Collection</code> 相比于 <code>Sequence</code> 引入了下标的概念，需要使用者提供下标的开始位置和结束位置，并且提供获取下一个下标的方法，有了这三个要素，<code>Collection</code>相比于<code>Sequence</code>就可以实现更多的功能。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/14/Read-stdlib-of-swift3-StringBuffer/" rel="next" title="Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探">
+                <i class="fa fa-chevron-left"></i> Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/"
+                   data-title="Swift 3.0 标准库源码阅读笔记——Sequence 和 Collection" data-url="http://blog.luckymore.wang/2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="http://tva4.sinaimg.cn/crop.0.0.512.512.180/87939914jw8eus1v8o70mj20e80e80tc.jpg" alt="luckymore" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">luckymore</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/luckymore0520" target="_blank">
+                  <i class="fa fa-github fa-fw"></i> GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2274597140/profile" target="_blank">
+                  <i class="fa fa-weibo fa-fw"></i> Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">友情链接</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.callmewhy.com/" target="_blank">CallMeWhy</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ios.dog/" target="_blank">Boolean93</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.zyliu.com/" target="_blank">Sheep</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.cee.moe/" target="_blank">Cee</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Sequence"><span class="nav-number">1.</span> <span class="nav-text">Sequence</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IteratorProtocol_迭代器"><span class="nav-number">1.1.</span> <span class="nav-text">IteratorProtocol  迭代器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Demo"><span class="nav-number">1.2.</span> <span class="nav-text">使用Demo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IteratorProtocol"><span class="nav-number">1.3.</span> <span class="nav-text">IteratorProtocol</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sequence-1"><span class="nav-number">1.4.</span> <span class="nav-text">Sequence</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Collection"><span class="nav-number">2.</span> <span class="nav-text">Collection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是_Collection_？"><span class="nav-number">2.1.</span> <span class="nav-text">什么是 Collection ？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo"><span class="nav-number">2.2.</span> <span class="nav-text">Demo</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luckymore</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"luckymore0520"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.2" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      isMobile() && FastClick.attach(document.body);
+
+      // Define Motion Sequence.
+      motionIntegrator
+        .add(motionMiddleWares.logo)
+        .add(motionMiddleWares.menu)
+        .add(motionMiddleWares.backToTop)
+        .add(motionMiddleWares.postList)
+        .add(motionMiddleWares.sidebar);
+
+      // Bootstrap Motion.
+      motionIntegrator.bootstrap();
+    });
+  </script>
+
+  
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
