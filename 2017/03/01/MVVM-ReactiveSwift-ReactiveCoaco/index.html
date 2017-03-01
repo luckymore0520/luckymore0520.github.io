@@ -1,0 +1,837 @@
+<!doctype html>
+<html class="theme-next use-motion ">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+<link rel="stylesheet" type="text/css" href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" />
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.2"/>
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+<meta name="description" content="引言这篇文章其实算是一篇学习笔记，先是回顾了 MVVM 和 ReactiveCocoa 的历史，然后对 ReactiveCocoa 5.0 拆分出来的 ReactiveSwift 中的一些概念结合源码做了一定的解释。
+在下一篇文章中，我还会通过一个复杂度适中的案例完成一个使用 MVVM + ReactiveCocoa 的 Demo， 总结了一些开发过程中的注意要点。（这篇太长了 +。=）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初探 ReactiveSwift">
+<meta property="og:url" content="http://blog.luckymore.wang/2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/index.html">
+<meta property="og:site_name" content="luckymore的学习笔记">
+<meta property="og:description" content="引言这篇文章其实算是一篇学习笔记，先是回顾了 MVVM 和 ReactiveCocoa 的历史，然后对 ReactiveCocoa 5.0 拆分出来的 ReactiveSwift 中的一些概念结合源码做了一定的解释。
+在下一篇文章中，我还会通过一个复杂度适中的案例完成一个使用 MVVM + ReactiveCocoa 的 Demo， 总结了一些开发过程中的注意要点。（这篇太长了 +。=）">
+<meta property="og:updated_time" content="2017-03-01T02:37:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="初探 ReactiveSwift">
+<meta name="twitter:description" content="引言这篇文章其实算是一篇学习笔记，先是回顾了 MVVM 和 ReactiveCocoa 的历史，然后对 ReactiveCocoa 5.0 拆分出来的 ReactiveSwift 中的一些概念结合源码做了一定的解释。
+在下一篇文章中，我还会通过一个复杂度适中的案例完成一个使用 MVVM + ReactiveCocoa 的 Demo， 总结了一些开发过程中的注意要点。（这篇太长了 +。=）">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post'
+  };
+</script>
+
+
+
+  <title> 初探 ReactiveSwift | luckymore的学习笔记 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">luckymore的学习笔记</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                初探 ReactiveSwift
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2017-03-01T09:18:20+08:00" content="2017-03-01">
+              2017-03-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/iOS开发/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS开发</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="引言">引言</h2><p>这篇文章其实算是一篇学习笔记，先是回顾了 <code>MVVM</code> 和 <code>ReactiveCocoa</code> 的历史，然后对 <code>ReactiveCocoa 5.0</code> 拆分出来的 <code>ReactiveSwift</code> 中的一些概念结合源码做了一定的解释。</p>
+<p>在下一篇文章中，我还会通过一个复杂度适中的案例完成一个使用 <code>MVVM</code> + <code>ReactiveCocoa</code> 的 Demo， 总结了一些开发过程中的注意要点。<br>（这篇太长了 +。=）</p>
+<a id="more"></a> 
+<h2 id="忆往昔">忆往昔</h2><p>关于 <code>MVC</code> 与 <code>MVVM</code>，其实已经被讨论了好几年，不知道多少年前是谁带的头，吐槽苹果官方所推荐的 <code>MVC</code> 模式就是 <code>Massive View Controller</code>，然后各路人马就费劲脑汁怎么给 <code>ViewController</code> 瘦身，抽出个 <code>DataSource</code>，抽出个<code>ViewModel</code>，抽出个啥啥啥，其实个人以为大部分情况下只是让 <code>ViewController</code> 看起来不那么臃肿，如果操作不当，可能不但没有降低其耦合性，反而可能增加了许多不必要的依赖。</p>
+<p><code>MVVM</code> 这个模式其实最早是微软提出的，结合了 <code>MVP</code> 的架构和<code>WPF</code>（微软的双向绑定）技术。</p>
+<p> 对，没错，就是双向绑定，<code>MVVM</code> 严重依赖于双向绑定，严格意义上来说，没有双向绑定的都不能称作是 <code>MVVM</code></p>
+<p> 所以 <code>MVVM</code> 真正流行起来还是因为 <code>ReactiveCocoa</code> 的出现，借助于 <code>ReactiveCocoa</code> 可以实现 <code>UIKit</code> 组件和数据的双向绑定，也就意味着 <code>MVVM</code> 可以在 <code>iOS</code> 开发中得到更好的实践。</p>
+<p> 这篇文章<a href="http://www.sprynthesis.com/2014/12/06/reactivecocoa-mvvm-introduction/" target="_blank" rel="external">ReactiveCocoa and MVVM, an Introduction
+</a>（中文版的见<a href="http://yulingtianxia.com/blog/2015/05/21/ReactiveCocoa-and-MVVM-an-Introduction/" target="_blank" rel="external">ReactiveCocoa 和 MVVM 入门</a>)已经把 <code>MVC</code> 和 <code>MVVM</code> 的关系、<code>ReactiveCocoa</code> 中的一些核心理念（比如信号 <code>Signal</code>，订阅者 <code>Subscriber</code>）、<code>MVVM</code> 的优势、以及如何在 <code>Objective-C</code> 中实践 <code>ReactiveCocoa</code> 讲的相当清楚了，建议不了解的可以先读一遍。</p>
+<p>其实这篇文章大概在2年以前我就读过，当时是同事推荐的，当时简单读了一遍，感觉很高大上，但是并不喜欢（为什么不喜欢我一会儿讲），一直以来也没自己去尝试一遍。</p>
+<p>回过头又找到了这篇文章，翻到最下面第一条评论就是当初前同事的：</p>
+<p><code>最近正在尝试在公司里推 RAC 做一些小尝试 [嘻嘻]</code></p>
+<p>不禁想起了前司的日子，不过结局我想大家也都猜到，根本就没有推起来（我甚至不记得有推过），这也是我为什么当时并不喜欢的原因。</p>
+<p>总结下来，原因有以下几点：</p>
+<ul>
+<li>代码晦涩难懂（代码里各种 RAC、RACObserve的宏，各种闭包，各种Signal，很挑战传统程序员的理解水平）</li>
+<li>学习成本高 （用的好需要懂函数式、响应式，需要理清各个概念，光函数式编程就很难说真的入门）</li>
+<li><p>调试成本高（RAC 严重侵入了 Cocoa 框架）</p>
+<p>  balabala……</p>
+</li>
+</ul>
+<p>总之就是想在一个成型的团队推这样的编程理念，并且能够真正使用起来的确是有一定难度的。</p>
+<p>当然，即使这样，也不能否认它的确具有一些 <code>MVC</code> 没有办法做到的优势，清晰统一的数据流、可测试的 <code>ViewModel</code>，职责更加明确的 <code>View</code>、<code>ViewController</code></p>
+<hr>
+<p> 于是。。。话说回来，为什么又回头看这玩意儿呢？</p>
+<p> 其一，几年过去了，它依然很火，或者越来越火，说明的确还是很好用的，当年自己不想用或许是因为太弱了吧（虽然现在依然很弱）。</p>
+<p> 其二，找实习了，前几天面的公司说他们正在用 <code>MVVM</code> + <code>FRP</code> + <code>ReactiveSwift</code>，既然这样，我就再看看呗，然后发现很难找到关于 <code>ReactiveSwift</code> 以及 <code>ReactiveCocoa 5.0</code> 的相关文章，那就顺带边学边写一篇小小的总结。</p>
+<h2 id="ReactiveCocoa_前世今生">ReactiveCocoa 前世今生</h2><p>如果我记得没错的话， <code>ReactiveCocoa</code> 的框架最初是用 <code>Objective-C</code> 写的，上面提到的文章便是基于 <code>Objective-C</code> 的，充斥着大量的 <code>RAC</code>、<code>RACObserver</code> 的宏，以及<code>rac_</code>的前缀，更新到 <code>3.0</code> 的时候出现了 <code>Swift</code> 的版本，如今已经更新到 <code>5.0</code> 的， 而 <code>5.0</code> 可以说相比于之前的版本有了巨大的改动，主要体现在一下几点：</p>
+<ul>
+<li>适配 Swift 3.0</li>
+<li>将原有的 <code>RAC</code> 拆分成4个库，分别为 <code>ReactiveCocoa</code>、 <code>ReactiveSwift</code>、<code>ReactiveObjc</code> 以及 <code>ReactiveObjcBridge</code> </li>
+<li>修改了大部分核心 API 明明，去除了 <code>rac</code> 前缀， 统一使用 <code>reactive</code> 的命名空间。（个人觉得更 Swift 了）</li>
+</ul>
+<h3 id="ReactiveCocoa">ReactiveCocoa</h3><p>如今 <code>ReactiveCocoa</code> 这个库主要用于为 <code>UIKit</code> 和 <code>AppKit</code> 提供扩展，使其支持响应式编程，依赖于 <code>ReactiveSwift</code>，所做的更多的是业务层面的工作，主要任务就是将 UI 元素和操作转换成 <code>ReactiveSwift</code> 中的 <code>Signal</code>、<code>Action</code> 以及 <code>BindingTarget</code>，其中的相关概念都将在下一节解释。</p>
+<h3 id="ReactiveSwift">ReactiveSwift</h3><p><code>ReactiveSwift</code> 是 <code>ReactiveCocoa</code> 拆分出来的只和 <code>Swift</code> 相关的核心库， 这个库非常精简，仅有十来个文件，且不依赖于平台，所以仅有 <code>ReactiveSwift</code> 是没法完整地完成一个 <code>MVVM</code> 函数响应式应用的。</p>
+<p><code>ReactiveCocoa</code> + <code>ReactiveSwift</code> 可以用来完成 <code>CocoaTouch</code> 以及 <code>Coaco</code> 的开发， 而毕竟 <code>Swift</code> 已经是一门开源的语言，仅用 <code>ReactiveSwift</code> 即可完成在其他应用场景下的函数响应式开发，这也是将它分离开来的原因。</p>
+<h3 id="ReactiveObjc">ReactiveObjc</h3><p><code>ReactiveCocoa</code> 原有的 <code>Objective-C</code> 代码都被放在了这个库中，它和 <code>ReactiveSwift</code> 具备相同的功能，但是却有两套 API，  原先这两个都在一个库中，拆分开来是为了更好地维护。</p>
+<h3 id="ReactiveObjcBridge">ReactiveObjcBridge</h3><p><code>Bridge</code> 顾名思义，是用于处理一些历史遗留问题的，比如项目中存在 <code>Swift</code> 调用 <code>Objective-C</code> 写的 API， 那么就需要使用这个库来完成转换。</p>
+<h3 id="使用场景">使用场景</h3><ul>
+<li>纯 Swift 开发： ReactiveCocoa + ReactiveSwift（ RAC 自动依赖 ）</li>
+<li>纯 Objective-C 开发： ReactiveObjc</li>
+<li>Swift + Objective-C 混编： 四个库都需要</li>
+</ul>
+<h2 id="ReactiveSwift_相关概念梳理">ReactiveSwift 相关概念梳理</h2><p><code>ReactiveSwift</code> 是一个典型的函数响应式框架，基于 <code>数据流</code> 的概念，提供了可组合的、可声明的、灵活的数据类型。下面先介绍一下 <code>ReactiveSwift</code> 中一些基本概念。</p>
+<h3 id="Signal_信号">Signal 信号</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Signal</span>&lt;<span class="title">Value</span>, <span class="title">Error</span>: <span class="title">Swift</span>.<span class="title">Error</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>个人以为，信号可以理解为管道，是事件传递的通道，事件通过 <code>Signal</code> 来传递到订阅者那里，订阅者根据事件类型以及数据进行对应操作，需要注意的是，这个事件流是单向的，这就意味着订阅者不会对信号本身带来任何影响 —— 即无副作用。</p>
+<p>定义一个信号时，需要制定信号所传输的数据的类型（ <code>Value</code> ） 以及错误类型 ( <code>Error</code> )，错误类型需要遵循 <code>Swift</code> 中的 <code>Error</code> 协议，如果确定不会有错误发生，可以直接用 <code>Result</code> 内置的 <code>NoError</code>。</p>
+<h4 id="信号创建的几个方法">信号创建的几个方法</h4><ul>
+<li>pipe</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> (signal, observer) = <span class="type">Signal</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;.pipe()</div><div class="line"><span class="keyword">let</span> subscriber1 = <span class="type">Observer</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;(value: &#123; <span class="built_in">print</span>(<span class="string">"Subscriber 1 received <span class="subst">\($<span class="number">0</span>)</span>"</span>) &#125; )</div><div class="line"><span class="keyword">let</span> subscriber2 = <span class="type">Observer</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;(value: &#123; <span class="built_in">print</span>(<span class="string">"Subscriber 2 received <span class="subst">\($<span class="number">0</span>)</span>"</span>) &#125; )</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"Subscriber 1 subscribes to the signal"</span>)</div><div class="line">signal.observe(subscriber1)</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"Send value `10` on the signal"</span>)</div><div class="line">observer.send(value: <span class="number">10</span>)</div><div class="line"><span class="comment">// 订阅者此时会收到消息</span></div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"Subscriber 2 subscribes to the signal"</span>)</div><div class="line"><span class="comment">// 因为subscribe2此时还没有注册订阅，所以并不会收到之前的消息</span></div><div class="line">signal.observe(subscriber2)</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"Send value `20` on the signal"</span>)</div><div class="line"><span class="comment">// Notice that now, subscriber1 and subscriber2 will receive the value</span></div><div class="line">observer.send(value: <span class="number">20</span>)</div><div class="line"><span class="comment">// 此时两个订阅者都可以收到消息</span></div></pre></td></tr></table></figure>
+<p>pipe 方法是 <code>Signal</code> 类型的一个静态方法，会调用 <code>Signal</code> 的指定初始化方法，生成 <code>Observer</code> 并返回一个 <code>Signal</code> 和 <code>Observer</code> 的元组，返回的 <code>Observer</code> 相当于事件的发送者。</p>
+<p>订阅者同样也是 <code>Observer</code> 类型，即观察者，可以调用 <code>signal.observe()</code> 方法注册订阅者，如上述代码所示，一旦信号发送事件，订阅者便会得知，根据事件类型执行闭包中的操作。</p>
+<ul>
+<li>事件绑定</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Reactive</span> <span class="title">where</span> <span class="title">Base</span>: <span class="title">UITextField</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="comment">/// A signal of text values emitted by the text field upon any changes.</span></div><div class="line">	<span class="comment">///</span></div><div class="line">	<span class="comment">/// - note: To observe text values only when editing ends, see `textValues`.</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">var</span> continuousTextValues: <span class="type">Signal</span>&lt;<span class="type">String</span>?, <span class="type">NoError</span>&gt; &#123;</div><div class="line">		<span class="keyword">return</span> controlEvents(.editingChanged).<span class="built_in">map</span> &#123; $<span class="number">0</span>.text &#125;</div><div class="line">	&#125;	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>通过 property 获取 （见下文）</li>
+<li>通过 signalProducer 创建（见下文）</li>
+</ul>
+<p>这是 <code>ReactiveCocoa</code> 中的代码，可以通过调用 <code>textField.reactive.continuousTextValues</code> 来获取一个 <code>Signal</code>，这个信号用于传递输入框中内容变化的，每次输入框中内容出现变话，都会发送一个类型为 <code>Value</code> 的事件附带输入框中内容的 <code>value</code>，实际上 <code>Observer</code> 观察的是 <code>.editingChanged</code> 事件。</p>
+<h4 id="信号的转换">信号的转换</h4><p>以 <code>map</code> 函数为例</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> (signal, observer) = <span class="type">Signal</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;.pipe()</div><div class="line"><span class="keyword">let</span> subscriber = <span class="type">Observer</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;(value: &#123; <span class="built_in">print</span>(<span class="string">"Subscriber received <span class="subst">\($<span class="number">0</span>)</span>"</span>) &#125; )</div><div class="line"><span class="keyword">let</span> mappedSignal = signal.<span class="built_in">map</span> &#123; $<span class="number">0</span> * <span class="number">2</span> &#125;</div><div class="line">mappedSignal.observe(subscriber)</div><div class="line"><span class="built_in">print</span>(<span class="string">"Send value `10` on the signal"</span>)</div><div class="line">observer.send(value: <span class="number">10</span>)</div><div class="line"><span class="comment">//输出Subscriber received 20</span></div></pre></td></tr></table></figure>
+<p><code>ReactiveSwift</code> 内置的相关还是还有很多，比如<code>flatMap</code>、<code>filter</code>等等，用于对信号传递的值进行再处理，顺带说一句，<code>ReactiveSwift</code> 中几乎所有的元素都是可以执行这些函数式的操作进行转换的。</p>
+<h3 id="Event_事件">Event 事件</h3><p><code>Event</code> 即 <code>Signal</code> 传递的单元， 在 <code>ReactiveSwift</code> 中，<code>Event</code> 是一个枚举类型，</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">Event</span>&lt;<span class="title">Value</span>, <span class="title">Error</span>: <span class="title">Swift</span>.<span class="title">Error</span>&gt; </span>&#123;</div><div class="line">	<span class="comment">/// 提供值类型.</span></div><div class="line">	<span class="keyword">case</span> value(<span class="type">Value</span>)</div><div class="line"></div><div class="line">	<span class="comment">/// The signal terminated because of an error. No further events will be</span></div><div class="line">	<span class="comment">/// received.</span></div><div class="line">	<span class="comment">/// 失败，一旦收到失败类型，信号之后就不会发送任何消息</span></div><div class="line">	<span class="keyword">case</span> failed(<span class="type">Error</span>)</div><div class="line"></div><div class="line">	<span class="comment">/// The signal successfully terminated. No further events will be received.</span></div><div class="line">	<span class="comment">/// 正常结束</span></div><div class="line">	<span class="keyword">case</span> completed</div><div class="line"></div><div class="line">	<span class="comment">/// Event production on the signal has been interrupted. No further events</span></div><div class="line">	<span class="comment">/// will be received.</span></div><div class="line">	<span class="comment">///</span></div><div class="line">	<span class="comment">/// - important: This event does not signify the successful or failed</span></div><div class="line">	<span class="comment">///              completion of the signal.</span></div><div class="line">	<span class="comment">///中断</span></div><div class="line">	<span class="keyword">case</span> interrupted</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="Observer_观察者">Observer 观察者</h3><p>观察者，实际上 <code>Event</code> 仅仅封装了一个 <code>Action</code></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Observer</span>&lt;<span class="title">Value</span>, <span class="title">Error</span>: <span class="title">Swift</span>.<span class="title">Error</span>&gt; </span>&#123;</div><div class="line">	<span class="comment">//Action实际上是一个闭包</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">typealias</span> <span class="type">Action</span> = (<span class="type">Event</span>&lt;<span class="type">Value</span>, <span class="type">Error</span>&gt;) -&gt; <span class="type">Void</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">let</span> action: <span class="type">Action</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">init</span>(<span class="number">_</span> action: @escaping <span class="type">Action</span>) &#123;</div><div class="line">		<span class="keyword">self</span>.action = action</div><div class="line">	&#125;</div><div class="line">	<span class="comment">//初始化方法传入4个类型的闭包，分别处理四种不同的事件（当然，是可选的）</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">convenience</span> <span class="keyword">init</span>(</div><div class="line">		value: ((<span class="type">Value</span>) -&gt; <span class="type">Void</span>)? = <span class="literal">nil</span>,</div><div class="line">		failed: ((<span class="type">Error</span>) -&gt; <span class="type">Void</span>)? = <span class="literal">nil</span>,</div><div class="line">		completed: (() -&gt; <span class="type">Void</span>)? = <span class="literal">nil</span>,</div><div class="line">		interrupted: (() -&gt; <span class="type">Void</span>)? = <span class="literal">nil</span></div><div class="line">	) &#123;</div><div class="line">		<span class="keyword">self</span>.<span class="keyword">init</span> &#123; event <span class="keyword">in</span></div><div class="line">			<span class="keyword">switch</span> event &#123;</div><div class="line">			<span class="keyword">case</span> <span class="keyword">let</span> .value(v):</div><div class="line">				value?(v)</div><div class="line"></div><div class="line">			<span class="keyword">case</span> <span class="keyword">let</span> .failed(error):</div><div class="line">				failed?(error)</div><div class="line"></div><div class="line">			<span class="keyword">case</span> .completed:</div><div class="line">				completed?()</div><div class="line"></div><div class="line">			<span class="keyword">case</span> .interrupted:</div><div class="line">				interrupted?()</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>ObserverProtocol</code> 定义了观察者发送事件的接口，实现起来也非常简单，就是分别发送四个不同类型的事件</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Observer</span>: <span class="title">ObserverProtocol</span> </span>&#123;</div><div class="line">	<span class="comment">/// Puts a `value` event into `self`.</span></div><div class="line">	<span class="comment">///</span></div><div class="line">	<span class="comment">/// - parameters:</span></div><div class="line">	<span class="comment">///   - value: A value sent with the `value` event.</span></div><div class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">send</span><span class="params">(value: Value)</span></span> &#123;</div><div class="line">		action(.value(value))</div><div class="line">	&#125;</div><div class="line">	<span class="comment">/// Puts a failed event into `self`.</span></div><div class="line">	<span class="comment">///</span></div><div class="line">	<span class="comment">/// - parameters:</span></div><div class="line">	<span class="comment">///   - error: An error object sent with failed event.</span></div><div class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">send</span><span class="params">(error: Error)</span></span> &#123;</div><div class="line">		action(.failed(error))</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/// Puts a `completed` event into `self`.</span></div><div class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">sendCompleted</span><span class="params">()</span></span> &#123;</div><div class="line">		action(.completed)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/// Puts an `interrupted` event into `self`.</span></div><div class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">sendInterrupted</span><span class="params">()</span></span> &#123;</div><div class="line">		action(.interrupted)</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="Property_可被观察的值的封装">Property 可被观察的值的封装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public final class Property&lt;Value&gt;: PropertyProtocol &#123;</div><div class="line">	private let disposable: Disposable?</div><div class="line"></div><div class="line">	private let _value: () -&gt; Value</div><div class="line">	private let _producer: () -&gt; SignalProducer&lt;Value, NoError&gt;</div><div class="line">	private let _signal: () -&gt; Signal&lt;Value, NoError&gt;</div><div class="line">	.......</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Property 封装了一个 <code>Value</code> ，同时持有一个 <code>signal</code> 和 <code>signalProducer</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">let mutableProperty = MutableProperty(1)</div><div class="line">    </div><div class="line">// property 的值可以直接通过 property.value 获取</div><div class="line">print(&quot;Property has initial value \(mutableProperty.value)&quot;)</div><div class="line">// 可以通过 property.producer 或者 property.signal 来订阅 Property 的变化，差别在于 producer 会通知初始值， 而 signal 仅有在更新的时候会通知</div><div class="line"></div><div class="line">mutableProperty.producer.startWithValues &#123;</div><div class="line">    print(&quot;mutableProperty.producer receied \($0)&quot;)</div><div class="line">&#125;</div><div class="line">mutableProperty.signal.observeValues &#123;</div><div class="line">    print(&quot;mutableProperty.signal received \($0)&quot;)</div><div class="line">&#125;</div><div class="line">    </div><div class="line">print(&quot;---&quot;)</div><div class="line">print(&quot;Setting new value for mutableProperty: 2&quot;)</div><div class="line">mutableProperty.value = 2</div><div class="line"></div><div class="line">print(&quot;---&quot;)</div><div class="line">// Property 不可变的， MutableProperty 是可变的</div><div class="line">let property = Property(mutableProperty)</div><div class="line">print(&quot;Reading value of readonly property: \(property.value)&quot;)</div><div class="line">property.signal.observeValues &#123;</div><div class="line">    print(&quot;property.signal received \($0)&quot;)</div><div class="line">&#125;</div><div class="line">    </div><div class="line">// Its not possible to set the value of a Property</div><div class="line">//    readonlyProperty.value = 3</div><div class="line">// But you can still change the value of the mutableProperty and observe its change on the property</div><div class="line">print(&quot;---&quot;)</div><div class="line">print(&quot;Setting new value for mutableProperty: 3&quot;)</div><div class="line">mutableProperty.value = 3</div><div class="line">    </div><div class="line">// Constant properties can be created by using the `Property(value:)` initializer</div><div class="line">let constant = Property(value: 1)</div><div class="line">//    constant.value = 2    // The value of a constant property can not be changed</div><div class="line"></div><div class="line"></div><div class="line">////输出</div><div class="line">Property has initial value 1</div><div class="line">mutableProperty.producer receied 1</div><div class="line">---</div><div class="line">Setting new value for mutableProperty: 2</div><div class="line">mutableProperty.producer receied 2</div><div class="line">mutableProperty.signal received 2</div><div class="line">---</div><div class="line">Reading value of readonly property: 2</div><div class="line">---</div><div class="line">Setting new value for mutableProperty: 3</div><div class="line">mutableProperty.producer receied 3</div><div class="line">mutableProperty.signal received 3</div><div class="line">property.signal received 3</div></pre></td></tr></table></figure>
+<h3 id="SignalProducer_信号生产者">SignalProducer 信号生产者</h3><p>关于 <code>Signal</code> 和 <code>SignalProducer</code> 的关系，以及 <code>SignalProducer</code> 的用途其实比较难理解，这里结合具体实例来解释可能更加直白一点。</p>
+<p>在官方文档中的描述是这样的：</p>
+<blockquote>
+<p><code>SignalProducer</code> 用于创建信号，并且可以执行副作用 </p>
+<p>还有一个关键词就是——<code>deferred work</code>，延迟生效，并且每次被 <code>start</code> 都会重新创建一个新的 <code>Signal</code></p>
+</blockquote>
+<p>先看一下 <code>SignalProducer</code> 的几种用法：</p>
+<ul>
+<li>闭包创建</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> producer = <span class="type">SignalProducer</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt; &#123; observer, <span class="number">_</span> <span class="keyword">in</span></div><div class="line">	<span class="built_in">print</span>(<span class="string">"New subscription, starting operation"</span>)</div><div class="line">	observer.send(value: <span class="number">1</span>)</div><div class="line">	observer.send(value: <span class="number">2</span>)</div><div class="line">&#125;</div><div class="line"><span class="keyword">let</span> subscriber1 = <span class="type">Observer</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;(value: &#123; <span class="built_in">print</span>(<span class="string">"Subscriber 1 received <span class="subst">\($<span class="number">0</span>)</span>"</span>) &#125;)</div><div class="line"><span class="keyword">let</span> subscriber2 = <span class="type">Observer</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;(value: &#123; <span class="built_in">print</span>(<span class="string">"Subscriber 2 received <span class="subst">\($<span class="number">0</span>)</span>"</span>) &#125;)</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"Subscriber 1 subscribes to producer"</span>)</div><div class="line">producer.start(subscriber1)</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"Subscriber 2 subscribes to producer"</span>)</div><div class="line"><span class="comment">// Notice, how the producer will start the work again</span></div><div class="line">producer.start(subscriber2)</div><div class="line"></div><div class="line"><span class="comment">//输出</span></div><div class="line"><span class="type">Subscriber</span> <span class="number">1</span> subscribes to producer</div><div class="line"><span class="type">New</span> subscription, starting operation</div><div class="line"><span class="type">Subscriber</span> <span class="number">1</span> received <span class="number">1</span></div><div class="line"><span class="type">Subscriber</span> <span class="number">1</span> received <span class="number">2</span></div><div class="line"><span class="type">Subscriber</span> <span class="number">2</span> subscribes to producer</div><div class="line"><span class="type">New</span> subscription, starting operation</div><div class="line"><span class="type">Subscriber</span> <span class="number">2</span> received <span class="number">1</span></div><div class="line"><span class="type">Subscriber</span> <span class="number">2</span> received <span class="number">2</span></div></pre></td></tr></table></figure>
+<ul>
+<li>通过事件创建</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> value: <span class="type">Int</span>?</div><div class="line"></div><div class="line"><span class="type">SignalProducer</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;(value: <span class="number">42</span>)</div><div class="line">	.on(value: &#123;</div><div class="line">		value = $<span class="number">0</span></div><div class="line">	&#125;)</div><div class="line">	.startWithSignal &#123; signal, disposable <span class="keyword">in</span></div><div class="line">        <span class="built_in">print</span>(value)</div><div class="line">	&#125;</div><div class="line"></div><div class="line"><span class="built_in">print</span>(value)</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">//输出</span></div><div class="line"><span class="literal">nil</span></div><div class="line"><span class="type">Optional</span>(<span class="number">42</span>)</div></pre></td></tr></table></figure>
+<ul>
+<li>通过 signal 创建（一般用于处理事件响应）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">let (signal, observer) = Signal&lt;Bool,NoError&gt;.pipe()</div><div class="line">let signalProducer = SignalProducer&lt;Bool, NoError&gt;(signal)</div></pre></td></tr></table></figure>
+<p>关于 <code>副作用</code> ，英文的说法是 <code>side effect</code>，这里也实在找不到什么更好的翻译了，而且的确挺难理解。</p>
+<p>我们举一个例子，假设我们要实现一个按钮点击实现，点击按钮执行一个网络请求，请求完毕后需要处理请求的结果，通过 <code>signalProducer</code> 这是单纯的 <code>Signal</code> 无法做到的。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> (signal, observer) = <span class="type">Signal</span>&lt;<span class="type">Bool</span>,<span class="type">NoError</span>&gt;.pipe()</div><div class="line"><span class="keyword">let</span> signalProducer = <span class="type">SignalProducer</span>&lt;<span class="type">Bool</span>, <span class="type">NoError</span>&gt;(signal).on(</div><div class="line"> 	 starting: <span class="literal">nil</span>, started: <span class="literal">nil</span>,</div><div class="line">    event: &#123;</div><div class="line">        <span class="number">_</span> <span class="keyword">in</span></div><div class="line">		 <span class="comment">//做一些操作</span></div><div class="line">    &#125;,</div><div class="line">    value: <span class="literal">nil</span>, failed: <span class="literal">nil</span>, completed: <span class="literal">nil</span>, interrupted: <span class="literal">nil</span>, terminated: <span class="literal">nil</span>, disposed: <span class="literal">nil</span> </div><div class="line">)</div></pre></td></tr></table></figure>
+<h3 id="Action_动作">Action 动作</h3><p>先看一下 <code>Action</code> 的定义</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Action</span>&lt;<span class="title">Input</span>, <span class="title">Output</span>, <span class="title">Error</span>: <span class="title">Swift</span>.<span class="title">Error</span>&gt; </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">let</span> executeClosure: (<span class="number">_</span> state: <span class="type">Any</span>, <span class="number">_</span> input: <span class="type">Input</span>) -&gt; <span class="type">SignalProducer</span>&lt;<span class="type">Output</span>, <span class="type">Error</span>&gt;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">let</span> eventsObserver: <span class="type">Signal</span>&lt;<span class="type">Event</span>&lt;<span class="type">Output</span>, <span class="type">Error</span>&gt;, <span class="type">NoError</span>&gt;.<span class="type">Observer</span></div><div class="line">	<span class="keyword">private</span> <span class="keyword">let</span> disabledErrorsObserver: <span class="type">Signal</span>&lt;(), <span class="type">NoError</span>&gt;.<span class="type">Observer</span></div><div class="line">	<span class="comment">/// The lifetime of the Action.</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">let</span> lifetime: <span class="type">Lifetime</span></div><div class="line">	<span class="comment">/// A signal of all events generated from applications of the Action.</span></div><div class="line">	<span class="comment">///</span></div><div class="line">	<span class="comment">/// In other words, this will send every `Event` from every signal generated</span></div><div class="line">	<span class="comment">/// by each SignalProducer returned from apply() except `ActionError.disabled`.</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">let</span> events: <span class="type">Signal</span>&lt;<span class="type">Event</span>&lt;<span class="type">Output</span>, <span class="type">Error</span>&gt;, <span class="type">NoError</span>&gt;</div><div class="line">	.........	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>Action</code> 有一个 <code>Input</code> 代表输入， <code>Output</code> 代表输出， <code>Action</code> 中 <code>&lt;Output, Error&gt;</code> 对应于其 <code>Signal</code> 的 <code>&lt;Value, Error&gt;</code></p>
+<p><code>executeClosure</code> 是一个生成 <code>SignalProducer</code> 的闭包，在 <code>Action</code> 的初始化方法中，会生成对应的 <code>eventObserver</code> 和 <code>events</code> 的 Signal， 用于观察和发送事件。</p>
+<p><code>Action</code> 的一个核心方法是 <code>apply</code>， <code>apply</code> 会执行 <code>executeClosure</code> ，生成一个 <code>signalProducer</code> 并返回。 </p>
+<p>这里我们用官方文档里的一个比较形象的案例来解释一下其工作流程。</p>
+<p>我们可以将 <code>Action</code> 类比成一个自动取款机，一旦 <code>Action</code> 被创建， 我们只需要选择选项投入硬币，机器便会自动地执行预置的操作，最终输出你想要的商品。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// The vending machine.</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">VendingMachine</span> </span>&#123;</div><div class="line">	 <span class="comment">//purchase 是一个 Action， 输入是 Int 即零食id， 输出是 Snack 即零食</span></div><div class="line">    <span class="keyword">let</span> purchase: <span class="type">Action</span>&lt;<span class="type">Int</span>, <span class="type">Snack</span>, <span class="type">VendingMachineError</span>&gt;</div><div class="line">    </div><div class="line">    <span class="comment">//取款机会记录当前已经投入的硬币，这是一个被保存的状态</span></div><div class="line">    <span class="keyword">let</span> coins: <span class="type">MutableProperty</span>&lt;<span class="type">Int</span>&gt;</div><div class="line"></div><div class="line">    <span class="comment">// The vending machine is connected with a sales recorder.</span></div><div class="line">    <span class="keyword">init</span>(<span class="number">_</span> salesRecorder: <span class="type">SalesRecorder</span>) &#123;</div><div class="line">        coins = <span class="type">MutableProperty</span>(<span class="number">0</span>)</div><div class="line">        <span class="comment">//创建 purchase 这个 action</span></div><div class="line">        purchase = <span class="type">Action</span>(state: coins, enabledIf: &#123; $<span class="number">0</span> &gt; <span class="number">0</span> &#125;) &#123; coins, snackId <span class="keyword">in</span></div><div class="line">            <span class="keyword">return</span> <span class="type">SignalProducer</span> &#123; observer, <span class="number">_</span> <span class="keyword">in</span></div><div class="line">                <span class="comment">// The sales magic happens here.</span></div><div class="line">                <span class="comment">// Fetch a snack based on its id</span></div><div class="line">                <span class="comment">// 可以在 SignalProducer 的执行闭包中处理输出商品的逻辑</span></div><div class="line">                <span class="comment">// 在最后一遍会执行 </span></div><div class="line">                <span class="comment">// observer.send(....)</span></div><div class="line">                <span class="comment">// observer.sendCompleted()</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// The sales recorders are notified for any successful sales.</span></div><div class="line">        <span class="comment">//可以通过 action.values.observeValues 订阅 Signal</span></div><div class="line">        purchase.values.observeValues(salesRecorder.record)</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 执行apply，这里输入 snackId，生成 SignalProducer 并 start</span></div><div class="line"><span class="comment">// Purchase from the vending machine with a specific option.</span></div><div class="line">vendingMachine.purchase</div><div class="line">    .apply(snackId)</div><div class="line">    .startWithResult &#123; result</div><div class="line">        <span class="keyword">switch</span> result &#123;</div><div class="line">        <span class="keyword">case</span> <span class="keyword">let</span> .success(snack):</div><div class="line">            <span class="built_in">print</span>(<span class="string">"Snack: <span class="subst">\(snack)</span>"</span>)</div><div class="line"></div><div class="line">        <span class="keyword">case</span> <span class="keyword">let</span> .failure(error):</div><div class="line">            <span class="comment">// Out of stock? Insufficient fund?</span></div><div class="line">            <span class="built_in">print</span>(<span class="string">"Transaction aborted: <span class="subst">\(error)</span>"</span>)</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<h3 id="Lifetime_生命周期">Lifetime 生命周期</h3><p><code>Lifetime</code> 是 <code>ReactiveCocoa 5.0</code> 后出现的一个概念，通过提供一个 <code>Lifetime</code>，可以控制观察的生命周期</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">VideoPlayer</span> </span>&#123;</div><div class="line">  <span class="keyword">private</span> <span class="keyword">let</span> (lifetime, token) = <span class="type">Lifetime</span>.make()</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">func</span> <span class="title">play</span><span class="params">()</span></span> &#123;</div><div class="line">    <span class="keyword">let</span> frames: <span class="type">SignalProducer</span>&lt;<span class="type">VideoFrame</span>, <span class="type">ConnectionError</span>&gt; = ...</div><div class="line">    frames.take(during: lifetime).start &#123; frame <span class="keyword">in</span> ... &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>Lifetime</code> 的实现比较简单， <code>Observation</code> 的生命周期即 <code>token</code> 的生命周期，一旦 <code>token</code> 被销毁， <code>token</code>  所持有的 <code>endedObserver</code> 便会发送一个 <code>completed</code> 的事件， <code>Lifetime</code> 订阅了 <code>ended</code> 的 signal，会收到一个 <code>completed</code> 的信号， 从而再通知注册了 <code>lifetime</code> 的 <code>Signal</code> 停止数据流。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Token</span> </span>&#123;</div><div class="line">	<span class="comment">/// A signal that sends a Completed event when the lifetime ends.</span></div><div class="line">	fileprivate <span class="keyword">let</span> ended: <span class="type">Signal</span>&lt;(), <span class="type">NoError</span>&gt;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">let</span> endedObserver: <span class="type">Signal</span>&lt;(), <span class="type">NoError</span>&gt;.<span class="type">Observer</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">init</span>() &#123;</div><div class="line">		(ended, endedObserver) = <span class="type">Signal</span>.pipe()</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">deinit</span> &#123;</div><div class="line">		endedObserver.sendCompleted()</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="&lt;~_绑定">&lt;~ 绑定</h3><p>在 <code>ReactiveSwift</code> 中， 我们常常看到 <code>&lt;~</code> 操作符，这是一个非常直观的符号，其含义是<code>绑定</code>，值得注意的是，这个绑定是单向。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">BindingTargetProtocol &lt;~ BindingSourceProtocol</div></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">func</span> &lt;~</span></div><div class="line">	&lt;Target: BindingTargetProtocol, Source: BindingSourceProtocol&gt;</div><div class="line">	<span class="params">(target: Target, source: Source)</span> -&gt; <span class="type">Disposable</span>?</div><div class="line">	<span class="keyword">where</span> <span class="type">Source</span>.<span class="type">Value</span> == <span class="type">Target</span>.<span class="type">Value</span>, <span class="type">Source</span>.<span class="type">Error</span> == <span class="type">NoError</span></div><div class="line">&#123;</div><div class="line">	<span class="comment">// Alter the semantics of `BindingTarget` to not require it to be retained.</span></div><div class="line">	<span class="comment">// This is done here--and not in a separate function--so that all variants</span></div><div class="line">	<span class="comment">// of `&lt;~` can get this behavior.</span></div><div class="line">	<span class="keyword">let</span> observer: <span class="type">Observer</span>&lt;<span class="type">Target</span>.<span class="type">Value</span>, <span class="type">NoError</span>&gt;</div><div class="line">	<span class="keyword">if</span> <span class="keyword">let</span> target = target <span class="keyword">as</span>? <span class="type">BindingTarget</span>&lt;<span class="type">Target</span>.<span class="type">Value</span>&gt; &#123;</div><div class="line">		observer = <span class="type">Observer</span>(value: &#123; [setter = target.setter] <span class="keyword">in</span> setter($<span class="number">0</span>) &#125;)</div><div class="line">	&#125; <span class="keyword">else</span> &#123;</div><div class="line">		observer = <span class="type">Observer</span>(value: &#123; [<span class="keyword">weak</span> target] <span class="keyword">in</span> target?.consume($<span class="number">0</span>) &#125;)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">return</span> source.observe(observer, during: target.lifetime)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>Signal</code>、<code>SignalProducer</code>、<code>Property</code> 都是 <code>BindingSourceProtocal</code></p>
+<p><code>Property</code>、<code>Action</code> 可以是 <code>BindingTargetProtocal</code></p>
+<ul>
+<li>Property &lt;~ SignalProducer</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> producer = <span class="type">SignalProducer</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt; &#123; observer, <span class="number">_</span> <span class="keyword">in</span></div><div class="line">    <span class="built_in">print</span>(<span class="string">"New subscription, starting operation"</span>)</div><div class="line">    observer.send(value: <span class="number">1</span>)</div><div class="line">    observer.send(value: <span class="number">2</span>)</div><div class="line">&#125;</div><div class="line"><span class="keyword">let</span> property = <span class="type">MutableProperty</span>(<span class="number">0</span>)</div><div class="line">property.producer.startWithValues &#123;</div><div class="line">    <span class="built_in">print</span>(<span class="string">"Property received <span class="subst">\($<span class="number">0</span>)</span>"</span>)</div><div class="line">&#125;</div><div class="line"> property &lt;~ producer</div><div class="line"> </div><div class="line"> <span class="comment">//输出</span></div><div class="line"> <span class="type">Property</span> received <span class="number">0</span></div><div class="line"><span class="type">New</span> subscription, starting operation</div><div class="line"><span class="type">Property</span> received <span class="number">1</span></div><div class="line"><span class="type">Property</span> received <span class="number">2</span></div></pre></td></tr></table></figure>
+<ul>
+<li>Property &lt;~ Signal</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> (signal, observer) = <span class="type">Signal</span>&lt;<span class="type">Int</span>, <span class="type">NoError</span>&gt;.pipe()</div><div class="line"><span class="keyword">let</span> property = <span class="type">MutableProperty</span>(<span class="number">0</span>)</div><div class="line">property.producer.startWithValues &#123;</div><div class="line">    <span class="built_in">print</span>(<span class="string">"Property received <span class="subst">\($<span class="number">0</span>)</span>"</span>)</div><div class="line">&#125;</div><div class="line">property &lt;~ signal</div><div class="line"><span class="built_in">print</span>(<span class="string">"Sending new value on signal: 1"</span>)</div><div class="line">observer.send(value: <span class="number">1</span>) </div><div class="line"><span class="built_in">print</span>(<span class="string">"Sending new value on signal: 2"</span>)</div><div class="line">observer.send(value: <span class="number">2</span>)</div><div class="line"></div><div class="line"><span class="comment">//输出</span></div><div class="line"><span class="type">Property</span> received <span class="number">0</span></div><div class="line"><span class="type">Sending</span> new value on signal: <span class="number">1</span></div><div class="line"><span class="type">Property</span> received <span class="number">1</span></div><div class="line"><span class="type">Sending</span> new value on signal: <span class="number">2</span></div><div class="line"><span class="type">Property</span> received <span class="number">2</span></div></pre></td></tr></table></figure>
+<ul>
+<li>Property &lt;~ Property</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> property = <span class="type">MutableProperty</span>(<span class="number">0</span>)</div><div class="line">property.producer.startWithValues &#123;</div><div class="line">    <span class="built_in">print</span>(<span class="string">"Property received <span class="subst">\($<span class="number">0</span>)</span>"</span>)</div><div class="line">&#125;</div><div class="line">    </div><div class="line"><span class="keyword">let</span> otherProperty = <span class="type">MutableProperty</span>(<span class="number">0</span>)</div><div class="line">    </div><div class="line"><span class="comment">// Notice how property receives another value of 0 as soon as the binding is established</span></div><div class="line">property &lt;~ otherProperty</div><div class="line">    </div><div class="line"><span class="built_in">print</span>(<span class="string">"Setting new value for otherProperty: 1"</span>)</div><div class="line">otherProperty.value = <span class="number">1</span></div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"Setting new value for otherProperty: 2"</span>)</div><div class="line">otherProperty.value = <span class="number">2</span></div><div class="line"></div><div class="line"><span class="comment">//输出</span></div><div class="line"><span class="type">Property</span> received <span class="number">0</span></div><div class="line"><span class="type">Property</span> received <span class="number">0</span></div><div class="line"><span class="type">Setting</span> new value <span class="keyword">for</span> otherProperty: <span class="number">1</span></div><div class="line"><span class="type">Property</span> received <span class="number">1</span></div><div class="line"><span class="type">Setting</span> new value <span class="keyword">for</span> otherProperty: <span class="number">2</span></div><div class="line"><span class="type">Property</span> received <span class="number">2</span></div></pre></td></tr></table></figure>
+<p>当然，我相信其实大家见的最多的 <code>&lt;~</code> 符号应该出现在这种情况下</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">verifyButton.reactive.isEnabled &lt;~ viewModel.canSendAuthCode</div></pre></td></tr></table></figure>
+<p>这里 <code>canSendAuthCode</code> 是一个 <code>Bool</code> 类型的 <code>Property</code>，而 <code>Button.reactive.isEnabled</code> 实际上是在 <code>ReactiveCocoa</code> 中给 <code>UIControl</code> 的 <code>isEnabled</code> 定义的 <code>BindingTarget</code>，<code>BindingTarget</code> 遵循 <code>BindingTargetProtocal</code> 协议</p>
+<h2 id="总结">总结</h2><p>如上，结合源码对 <code>ReactiveSwift</code> 中的一些核心概念做了介绍。</p>
+<p>但是，请相信我，就算我写得再详细（何况写的还是不够好），不自己动手实践一下还是无法真正理解这些元素的用途。</p>
+<p>那么，我建议你，在理解了基本概念后，自己动手写一个小 <code>Demo</code> 吧</p>
+<p>当然，我也写了一个基于 <code>MVVM</code> + <code>ReactiveSwift</code> 的小 Demo ，将在下一篇文章中放出，并且描述一下新路历程，结合现有资料总结下 <code>MVVM</code> + <code>RAC</code> 下好的实践的注意点。</p>
+<h2 id="参考资料">参考资料</h2><ul>
+<li><a href="http://yulingtianxia.com/blog/2015/05/21/ReactiveCocoa-and-MVVM-an-Introduction/" target="_blank" rel="external">ReactiveCocoa 和 MVVM 入门</a></li>
+<li><a href="http://blog.joanzapata.com/mvvm-reactivecocoa-5/" target="_blank" rel="external">MVVM + ReactiveCocoa 5</a></li>
+<li><a href="http://www.cocoachina.com/ios/20161116/18104.html" target="_blank" rel="external">ReactiveCocoa 5.0 初窥：可能是最痛的一次升级</a></li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/29/Read-stdlib-of-swift3-0-Sequence-And-Collection/" rel="next" title="Swift 3.0 标准库源码阅读笔记——Sequence 和 Collection">
+                <i class="fa fa-chevron-left"></i> Swift 3.0 标准库源码阅读笔记——Sequence 和 Collection
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/"
+                   data-title="初探 ReactiveSwift" data-url="http://blog.luckymore.wang/2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="http://tva4.sinaimg.cn/crop.0.0.512.512.180/87939914jw8eus1v8o70mj20e80e80tc.jpg" alt="luckymore" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">luckymore</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/luckymore0520" target="_blank">
+                  <i class="fa fa-github fa-fw"></i> GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2274597140/profile" target="_blank">
+                  <i class="fa fa-weibo fa-fw"></i> Weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">友情链接</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.callmewhy.com/" target="_blank">CallMeWhy</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ios.dog/" target="_blank">Boolean93</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.zyliu.com/" target="_blank">Sheep</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.cee.moe/" target="_blank">Cee</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#忆往昔"><span class="nav-number">2.</span> <span class="nav-text">忆往昔</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReactiveCocoa_前世今生"><span class="nav-number">3.</span> <span class="nav-text">ReactiveCocoa 前世今生</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveCocoa"><span class="nav-number">3.1.</span> <span class="nav-text">ReactiveCocoa</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveSwift"><span class="nav-number">3.2.</span> <span class="nav-text">ReactiveSwift</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveObjc"><span class="nav-number">3.3.</span> <span class="nav-text">ReactiveObjc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveObjcBridge"><span class="nav-number">3.4.</span> <span class="nav-text">ReactiveObjcBridge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用场景"><span class="nav-number">3.5.</span> <span class="nav-text">使用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReactiveSwift_相关概念梳理"><span class="nav-number">4.</span> <span class="nav-text">ReactiveSwift 相关概念梳理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Signal_信号"><span class="nav-number">4.1.</span> <span class="nav-text">Signal 信号</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#信号创建的几个方法"><span class="nav-number">4.1.1.</span> <span class="nav-text">信号创建的几个方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#信号的转换"><span class="nav-number">4.1.2.</span> <span class="nav-text">信号的转换</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Event_事件"><span class="nav-number">4.2.</span> <span class="nav-text">Event 事件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Observer_观察者"><span class="nav-number">4.3.</span> <span class="nav-text">Observer 观察者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Property_可被观察的值的封装"><span class="nav-number">4.4.</span> <span class="nav-text">Property 可被观察的值的封装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SignalProducer_信号生产者"><span class="nav-number">4.5.</span> <span class="nav-text">SignalProducer 信号生产者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Action_动作"><span class="nav-number">4.6.</span> <span class="nav-text">Action 动作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lifetime_生命周期"><span class="nav-number">4.7.</span> <span class="nav-text">Lifetime 生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#<~_绑定"><span class="nav-number">4.8.</span> <span class="nav-text"><~ 绑定</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luckymore</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"luckymore0520"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.2" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      isMobile() && FastClick.attach(document.body);
+
+      // Define Motion Sequence.
+      motionIntegrator
+        .add(motionMiddleWares.logo)
+        .add(motionMiddleWares.menu)
+        .add(motionMiddleWares.backToTop)
+        .add(motionMiddleWares.postList)
+        .add(motionMiddleWares.sidebar);
+
+      // Bootstrap Motion.
+      motionIntegrator.bootstrap();
+    });
+  </script>
+
+  
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
