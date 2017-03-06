@@ -49,7 +49,7 @@
 <meta property="og:url" content="http://blog.luckymore.wang/2016/09/21/Fix-Mac-Pro-Wifi/index.html">
 <meta property="og:site_name" content="luckymore的学习笔记">
 <meta property="og:description" content="年初入手的15年顶配 RMBP， 用了有大半年， 无数次地遇到过 Wi-Fi 突然连不上， 从而总结了一整套处理 Mac Wi-Fi 连接问题的方案。">
-<meta property="og:updated_time" content="2016-09-21T15:27:34.000Z">
+<meta property="og:updated_time" content="2017-03-06T02:33:24.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如何处理 RMBP 蛋疼的 Wi-Fi 问题">
 <meta name="twitter:description" content="年初入手的15年顶配 RMBP， 用了有大半年， 无数次地遇到过 Wi-Fi 突然连不上， 从而总结了一整套处理 Mac Wi-Fi 连接问题的方案。">
@@ -246,8 +246,8 @@
       
         <span itemprop="articleBody"><p>年初入手的15年顶配 RMBP， 用了有大半年， 无数次地遇到过 Wi-Fi 突然连不上， 从而总结了一整套处理 Mac Wi-Fi 连接问题的方案。</p>
 <a id="more"></a> 
-<h2 id="最常见方案">最常见方案</h2><p>首先是无论是百度谷歌都可以非常容易搜索到的方案。</p>
-<h3 id="1-_添加新的位置">1. 添加新的位置</h3><p>这种方案一般用来解决 Wi-Fi 会间歇性中断的问题，一般就是连着连着突然断了，然后重启下 Wi-Fi 立马又连上了，对于不打游戏的用户来说似乎不是一个太严重的问题 =.=</p>
+<h2 id="最常见方案"><a href="#最常见方案" class="headerlink" title="最常见方案"></a>最常见方案</h2><p>首先是无论是百度谷歌都可以非常容易搜索到的方案。</p>
+<h3 id="1-添加新的位置"><a href="#1-添加新的位置" class="headerlink" title="1. 添加新的位置"></a>1. 添加新的位置</h3><p>这种方案一般用来解决 Wi-Fi 会间歇性中断的问题，一般就是连着连着突然断了，然后重启下 Wi-Fi 立马又连上了，对于不打游戏的用户来说似乎不是一个太严重的问题 =.=</p>
 <p>具体操作：  </p>
 <ul>
 <li>进入网络偏好设置</li>
@@ -257,25 +257,25 @@
 <p>一般这样的操作就能解决上述问题。</p>
 </li>
 </ul>
-<h3 id="2-重置配置文件">2.重置配置文件</h3><p>这种方案是网上最常见的，就是删除所有的网络相关配置文件，然后重启让他自动生成新的。一般用于处理那些因为配置问题而导致的无法上网。亲测，其实并没有那么有效。</p>
+<h3 id="2-重置配置文件"><a href="#2-重置配置文件" class="headerlink" title="2.重置配置文件"></a>2.重置配置文件</h3><p>这种方案是网上最常见的，就是删除所有的网络相关配置文件，然后重启让他自动生成新的。一般用于处理那些因为配置问题而导致的无法上网。亲测，其实并没有那么有效。</p>
 <p>具体操作：</p>
 <ul>
 <li>进入文件夹 /Library/Preferences/SystemConfiguration/</li>
 <li>把能删的都删了，清空废纸篓，然后重启</li>
 </ul>
-<h2 id="最有效方案">最有效方案</h2><p>有一种情况是能够连接上其他的路由器，但是就唯独不能连接你想连的那个，但是你想连的那个其他设备又能连得上。</p>
+<h2 id="最有效方案"><a href="#最有效方案" class="headerlink" title="最有效方案"></a>最有效方案</h2><p>有一种情况是能够连接上其他的路由器，但是就唯独不能连接你想连的那个，但是你想连的那个其他设备又能连得上。</p>
 <p>于是究竟是你电脑的问题还是这个路由器的问题呢？</p>
-<h3 id="路由器问题">路由器问题</h3><ul>
+<h3 id="路由器问题"><a href="#路由器问题" class="headerlink" title="路由器问题"></a>路由器问题</h3><ul>
 <li>国外的路由器只有11个信道，而国内的都是有13个信道的，路由器的信道默认是“自动”，这就意味着如果路由器自动使用了超过11的信道，那么你的苹果设备就无法访问到了，所以此时需要去配置下路由器，将信道固定为11以下。</li>
 </ul>
 <p> 以上方案亲测奏效过。</p>
 <ul>
 <li>再有就是路由器本身的问题了，建议升级下固件。</li>
 </ul>
-<h3 id="电脑问题">电脑问题</h3><ul>
+<h3 id="电脑问题"><a href="#电脑问题" class="headerlink" title="电脑问题"></a>电脑问题</h3><ul>
 <li>当你尝试了以上所有的方案依然没有解决 Wi-Fi 问题，即使暂时解决了但是依然会间歇性抽风，这个时候极有可能你遇到了困扰我很久的同样的一个问题，此时你只需要做一个操作：</li>
 </ul>
-<h1 id="拔掉连接你电脑上的所有_USB_设备">拔掉连接你电脑上的所有 USB 设备</h1><p>尤其是靠近电源接口的那个，不出意外，无线网卡也就在这个问题，如果你使用了外接USB扩展的话，十有八九就会出现 USB 接口干扰无线信号的问题导致 Wi-Fi 连接不上以及异常不稳定。</p>
+<h1 id="拔掉连接你电脑上的所有-USB-设备"><a href="#拔掉连接你电脑上的所有-USB-设备" class="headerlink" title="拔掉连接你电脑上的所有 USB 设备"></a>拔掉连接你电脑上的所有 USB 设备</h1><p>尤其是靠近电源接口的那个，不出意外，无线网卡也就在这个问题，如果你使用了外接USB扩展的话，十有八九就会出现 USB 接口干扰无线信号的问题导致 Wi-Fi 连接不上以及异常不稳定。</p>
 </span>
       
     </div>
@@ -441,7 +441,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#最常见方案"><span class="nav-number">1.</span> <span class="nav-text">最常见方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-_添加新的位置"><span class="nav-number">1.1.</span> <span class="nav-text">1. 添加新的位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-重置配置文件"><span class="nav-number">1.2.</span> <span class="nav-text">2.重置配置文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最有效方案"><span class="nav-number">2.</span> <span class="nav-text">最有效方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路由器问题"><span class="nav-number">2.1.</span> <span class="nav-text">路由器问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#电脑问题"><span class="nav-number">2.2.</span> <span class="nav-text">电脑问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#拔掉连接你电脑上的所有_USB_设备"><span class="nav-number"></span> <span class="nav-text">拔掉连接你电脑上的所有 USB 设备</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#最常见方案"><span class="nav-number">1.</span> <span class="nav-text">最常见方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-添加新的位置"><span class="nav-number">1.1.</span> <span class="nav-text">1. 添加新的位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-重置配置文件"><span class="nav-number">1.2.</span> <span class="nav-text">2.重置配置文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最有效方案"><span class="nav-number">2.</span> <span class="nav-text">最有效方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路由器问题"><span class="nav-number">2.1.</span> <span class="nav-text">路由器问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#电脑问题"><span class="nav-number">2.2.</span> <span class="nav-text">电脑问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#拔掉连接你电脑上的所有-USB-设备"><span class="nav-number"></span> <span class="nav-text">拔掉连接你电脑上的所有 USB 设备</span></a></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>

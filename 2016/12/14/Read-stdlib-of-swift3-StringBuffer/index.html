@@ -57,7 +57,7 @@ _StringBuffer 是个啥玩意儿 ？
 代码注释里所说的 String 共享 Buffer 究竟是怎么回事 ？
 _StringBuffer 是个啥玩意儿 ？
 带着一系列的问题，继续去读代码。（麻蛋，为什么找不到现成的资料 =.= ）">
-<meta property="og:updated_time" content="2016-12-14T14:36:56.000Z">
+<meta property="og:updated_time" content="2017-03-06T02:37:52.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Swift 3.0 标准库源码阅读笔记——从 StringBuffer 到 String 的内存初探">
 <meta name="twitter:description" content="_StringCore 的 owner 到底是什么玩意儿？
@@ -280,7 +280,7 @@ _StringBuffer 是个啥玩意儿 ？
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> str = <span class="string">"Hello, playground"</span></div><div class="line"><span class="built_in">print</span> (str.characters)</div><div class="line"><span class="comment">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x00000001144388d0), _countAndFlags: 17, _owner: nil))</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">printStr</span><span class="params">(<span class="number">_</span> strInFunction:String)</span></span> &#123;</div><div class="line">    <span class="built_in">print</span> (strInFunction.characters)</div><div class="line">    <span class="comment">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x000000010d7d48d0), _countAndFlags: 17, _owner: nil))</span></div><div class="line">	<span class="comment">//通过方法参数传过去的 String 实际是拷贝，但是指向了同一块内存区域。</span></div><div class="line">&#125;</div><div class="line">printStr(str)</div><div class="line"><span class="keyword">let</span> anotherStr = str + <span class="string">"!"</span></div><div class="line"><span class="built_in">print</span>(anotherStr.characters)</div><div class="line"><span class="comment">//CharacterView(_core: Swift._StringCore(_baseAddress: Optional(0x0000610000264e60), _countAndFlags: 18, _owner: Optional(Swift._HeapBufferStorage&lt;Swift._StringBufferIVars, Swift.UInt16&gt;)))</span></div><div class="line"><span class="comment">//这里对 str 做了一个加法，可以看到指向了一个完全不同的地址，并且拥有了一个 _owner</span></div></pre></td></tr></table></figure>
 <p>在上一篇文章中，我们有分析过 <code>String</code> 的结构，有一个 <code>_StringCore</code> 的结构体的属性，这个属性真正存储了 <code>String</code> 的数据结构，一个是 <code>_baseAddress</code> 是一个指针类型， 一个是 <code>_countAndFlags</code> 是长度，还有一个 <code>owner</code>，可以为<code>nil</code> 也可能是一个<code>_HeapBufferStorage</code> 但是具体作用位置，像上面的代码中，我们对一个 <code>str</code> 作了一个加法的产物就会有一个 <code>_owner</code>.</p>
 <p>我们可以看到， 当对 str 进行一次值拷贝的时候，两个 str 实际上共享着同一块内存区域，即<code>0x00000001144388d0</code>。而做了加法后，结果的 <code>String</code> 指向的是一个完全不同的地址。</p>
-<h3 id="StringBuffer_和_HeapBuffer">StringBuffer 和 HeapBuffer</h3><p><code>String</code> 可以由 <code>_StringBuffer</code> 来构建的，同样的，<code>_StringCore</code> 也是，我们来找找 _StringBuffer 的代码来一探究竟。</p>
+<h3 id="StringBuffer-和-HeapBuffer"><a href="#StringBuffer-和-HeapBuffer" class="headerlink" title="StringBuffer 和 HeapBuffer"></a>StringBuffer 和 HeapBuffer</h3><p><code>String</code> 可以由 <code>_StringBuffer</code> 来构建的，同样的，<code>_StringCore</code> 也是，我们来找找 _StringBuffer 的代码来一探究竟。</p>
 <p><code>_StringBuffer</code> 同样是一个结构体，并且只有一个属性 <code>_storage</code> 类型为 <code>_HeapBuffer&lt;_StringBufferIVars, UTF16.CodeUnit&gt;</code></p>
 <p>所以我们先看看 <code>HeapBuffer</code> 是什么样的结构。</p>
 <p><code>Heap</code> 众所周知，是<code>堆</code>，堆内存是区别于栈区、全局数据区和代码区的另一个内存区域。堆允许程序在运行时动态地申请某个大小的内存空间。最大的特点就是可以<code>动态分配</code>，<code>String</code>的<code>Buffer</code>是存储在堆上面的。</p>
@@ -296,14 +296,14 @@ _StringBuffer 是个啥玩意儿 ？
 <p>再往下就是更底层的东西了，先不往下看。</p>
 <p>在<code>_StringBuffer</code> 中， <code>Value</code> 是一个 <code>_StringBufferIVars</code> 的结构体， <code>Element</code> 是一个 <code>UTF16.CodeUnit</code>。<code>_StringBufferIVars</code> 实际上是作为指针的意义存在的，当然它本身也有一些属性，包括<code>_usedEnd</code>(结尾地址的下一个位置）,<code>capacityAndElementShift</code>同时用来表示容量以及元素长度。  </p>
 <p>然后我发现看起来有点困难了，所以我决定接下来做一件工作，把 <code>_StringCore</code> -&gt; <code>_StringBuffer</code> -&gt; <code>_HeapBuffer</code> 中的几个关键元素一一对应上，越是底层越是难懂，那么从我们已经大致理解的<code>_StringCore</code>入手来对应底层的东西也许会有收获。</p>
-<h4 id="_StringCore-_baseAddress_起始地址">_StringCore._baseAddress  起始地址</h4><p><strong>对应 _StringBuffer.start</strong></p>
+<h4 id="StringCore-baseAddress-起始地址"><a href="#StringCore-baseAddress-起始地址" class="headerlink" title="_StringCore._baseAddress  起始地址"></a>_StringCore._baseAddress  起始地址</h4><p><strong>对应 _StringBuffer.start</strong></p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="comment">// @testable</span></div><div class="line"><span class="keyword">var</span> start: <span class="type">UnsafeMutableRawPointer</span> &#123;</div><div class="line">	<span class="keyword">return</span> <span class="type">UnsafeMutableRawPointer</span>(_storage.baseAddress)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>首先，这是一个 <code>UnsafeMutableRawPointer</code> 对象，参数是 _storage.baseAddress，对应 _HeapBuffer.baseAddress</p>
 <p><strong>对应 _HeapBuffer.baseAddress</strong></p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="comment">// @testable</span></div><div class="line"><span class="keyword">var</span> baseAddress: <span class="type">UnsafeMutablePointer</span>&lt;<span class="type">Element</span>&gt; &#123;</div><div class="line">	<span class="keyword">return</span> (_HeapBuffer._elementOffset() + _address).assumingMemoryBound(</div><div class="line">  	to: <span class="type">Element</span>.<span class="keyword">self</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>_elementOffset() 针对特定<code>Element</code> 是一个固定的值，<br>_address 是其持有的对象 _storage（类型是class的_HeapBufferStorage）的指针</p>
 <p>所以我们可以理解，这个<code>_baseAddress</code> 起始地址跟这个对象引用相关</p>
-<h4 id="_StringCore-count_长度">_StringCore.count  长度</h4><p><strong>对应 _StringBuffer.usedCount</strong></p>
+<h4 id="StringCore-count-长度"><a href="#StringCore-count-长度" class="headerlink" title="_StringCore.count  长度"></a>_StringCore.count  长度</h4><p><strong>对应 _StringBuffer.usedCount</strong></p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> usedCount: <span class="type">Int</span> &#123;</div><div class="line">   <span class="keyword">return</span> (usedEnd - start) &gt;&gt; elementShift</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
 <p>usedEnd 是 <code>_StringBufferIVars</code> 中的一个属性 对应 <code>HeapBuffer</code>中的 <code>Value</code>，</p>
 <blockquote>
@@ -314,8 +314,8 @@ _StringBuffer 是个啥玩意儿 ？
 <blockquote>
 <p>1 if the buffer stores UTF-16; 0 otherwise.</p>
 </blockquote>
-<h4 id="_StringCore-owner">_StringCore.owner</h4><p><strong>对应 _StringBuffer.storage</strong>，即 HeapBuffer 本身。</p>
-<h2 id="从owner来看不同情况下String的创建方式_以及_String的加法">从owner来看不同情况下String的创建方式 以及 String的加法</h2><ul>
+<h4 id="StringCore-owner"><a href="#StringCore-owner" class="headerlink" title="_StringCore.owner"></a>_StringCore.owner</h4><p><strong>对应 _StringBuffer.storage</strong>，即 HeapBuffer 本身。</p>
+<h2 id="从owner来看不同情况下String的创建方式-以及-String的加法"><a href="#从owner来看不同情况下String的创建方式-以及-String的加法" class="headerlink" title="从owner来看不同情况下String的创建方式 以及 String的加法"></a>从owner来看不同情况下String的创建方式 以及 String的加法</h2><ul>
 <li>字面量：owner:nil</li>
 <li>加法、append、插值： owner都不为nil</li>
 </ul>
@@ -351,7 +351,7 @@ _StringBuffer 是个啥玩意儿 ？
 <p>并且这两个的地址是不同的，一个是编译时就确定的，一个是要在运行时才能确定。<br>我的猜测是在编译时 Swift 的优化机制会统一处理 字面量的 String。 到了运行时，便会另外开辟空间去处理，另外一方面，前者没有 HeapBuffer 而后者有，我甚至可以猜测，两者的存储方式可能都有所差别。然而我并没有找到相关的文献来证明这个观点。</p>
 <p>再次对它做 += 操作，对象是一个非空 String, 地址依然是 0x0000610000073520，只是长度变成了18<br>这也验证了上述代码，对_StringCore做 append 操作，直接对内存进行操作，并没有改变它的起始地址。</p>
 <p>再者，在对 str 做第二次 += 操作前，我们声明了另外一个 savedStr 并且将 str 拷贝给它， 最后输出发现他们依然共享同一个起始地址，只是长度不同，所以他们依然共享了 StringBuffer。</p>
-<h2 id="总结">总结</h2><p>其实从一开始就发现的一个疑问，为什么通过字面常量初始化的 <code>String</code> 没有 owner 而其他方式初始化的都有，通过阅读代码并没有得到一个确切的解释。依然只能够通过两者最明显的区别来猜测：编译时 VS 运行时。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实从一开始就发现的一个疑问，为什么通过字面常量初始化的 <code>String</code> 没有 owner 而其他方式初始化的都有，通过阅读代码并没有得到一个确切的解释。依然只能够通过两者最明显的区别来猜测：编译时 VS 运行时。</p>
 <p>在编译时，Swift 会针对 String 的字面量做优化，相同的字面量共享 Buffer。<br>在运行时，每个 StringCore 会有一个 Native Buffer，对 String 做修改实际上是修改 _StringCore， 处理过程中 _StringCore 依然会优先复用本身的 Buffer 并且使用最高效率的方式进行拷贝。</p>
 <p>另外，本文还主要介绍了 StringBuffer 的具体结构和原理， 以及与 _StringCore 的对应关系，而实际上，_StringBuffer 可以用来构造一个完整的 <code>String</code>， 更多情况下，它是一个更底层的 <code>String</code> 的存储模型，从更高层次封装了 <code>_HeapBufferStorage</code>。</p>
 </span>
@@ -519,7 +519,7 @@ _StringBuffer 是个啥玩意儿 ？
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#StringBuffer_和_HeapBuffer"><span class="nav-number">1.</span> <span class="nav-text">StringBuffer 和 HeapBuffer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#_StringCore-_baseAddress_起始地址"><span class="nav-number">1.1.</span> <span class="nav-text">_StringCore._baseAddress  起始地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#_StringCore-count_长度"><span class="nav-number">1.2.</span> <span class="nav-text">_StringCore.count  长度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#_StringCore-owner"><span class="nav-number">1.3.</span> <span class="nav-text">_StringCore.owner</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从owner来看不同情况下String的创建方式_以及_String的加法"><span class="nav-number"></span> <span class="nav-text">从owner来看不同情况下String的创建方式 以及 String的加法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#StringBuffer-和-HeapBuffer"><span class="nav-number">1.</span> <span class="nav-text">StringBuffer 和 HeapBuffer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#StringCore-baseAddress-起始地址"><span class="nav-number">1.1.</span> <span class="nav-text">_StringCore._baseAddress  起始地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#StringCore-count-长度"><span class="nav-number">1.2.</span> <span class="nav-text">_StringCore.count  长度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#StringCore-owner"><span class="nav-number">1.3.</span> <span class="nav-text">_StringCore.owner</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从owner来看不同情况下String的创建方式-以及-String的加法"><span class="nav-number"></span> <span class="nav-text">从owner来看不同情况下String的创建方式 以及 String的加法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>

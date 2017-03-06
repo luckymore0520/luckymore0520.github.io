@@ -67,7 +67,7 @@
 <meta property="og:image" content="http://i1.tietuku.com/bff9f95e941c82fd.png">
 <meta property="og:image" content="http://i1.tietuku.com/91098c7438f8f3d8.png">
 <meta property="og:image" content="http://i1.tietuku.com/b2868e17f2361e67.png">
-<meta property="og:updated_time" content="2015-10-19T14:28:37.000Z">
+<meta property="og:updated_time" content="2017-03-06T02:35:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS学习笔记-从QQ的一个Bug引发的关于导航栏的思考">
 <meta name="twitter:description" content="Bug的发现一次偶然的机会，发现了QQ的一个Bug。复现过程如下：
@@ -270,7 +270,7 @@
       
 
       
-        <span itemprop="articleBody"><h2 id="Bug的发现">Bug的发现</h2><p>一次偶然的机会，发现了QQ的一个Bug。<br>复现过程如下：</p>
+        <span itemprop="articleBody"><h2 id="Bug的发现"><a href="#Bug的发现" class="headerlink" title="Bug的发现"></a>Bug的发现</h2><p>一次偶然的机会，发现了QQ的一个Bug。<br>复现过程如下：</p>
 <ul>
 <li>在QQ中通过任意途径打开一个pdf或者word文档</li>
 <li>单击全屏显示</li>
@@ -279,13 +279,13 @@
 </ul>
 <p>当然，这是一个必现的Bug，而且我也相信类似的操作在很多别的应用中也会引发这个Bug，归根结底，这是iOS在引入了滑动返回后导航栏本身的一个Bug</p>
 <a id="more"></a>
-<h2 id="问题复现">问题复现</h2><p>为了验证这个问题，我特地用storyboard拖了3个viewController，其实前两个的导航栏设置为不隐藏，第三个导航栏设置为隐藏，并且在viewWillAppear和viewWillDisappear中对导航栏做了处理。<br>最后的实验结果出乎意料！！<br>iOS居然直接屏蔽了从无导航栏滑动返回到有导航栏的操作。<br>我可以从第二个界面滑动返回到第一个界面，但是没有办法从第三个界面滑动返回到第二个界面？</p>
+<h2 id="问题复现"><a href="#问题复现" class="headerlink" title="问题复现"></a>问题复现</h2><p>为了验证这个问题，我特地用storyboard拖了3个viewController，其实前两个的导航栏设置为不隐藏，第三个导航栏设置为隐藏，并且在viewWillAppear和viewWillDisappear中对导航栏做了处理。<br>最后的实验结果出乎意料！！<br>iOS居然直接屏蔽了从无导航栏滑动返回到有导航栏的操作。<br>我可以从第二个界面滑动返回到第一个界面，但是没有办法从第三个界面滑动返回到第二个界面？</p>
 <p>为此！我特地自定义了滑动返回事件，来复现这个问题。<br>源代码见：<a href="https://github.com/luckymore0520/NavigationTest" target="_blank" rel="external">https://github.com/luckymore0520/NavigationTest</a></p>
 <p>下面我们来构想这样一个场景，应用中大部分的界面是具有导航栏的，只有少数几个是没有导航栏的。那么我们这么写：</p>
 <p>如果有基类viewController，会在viewWillAppear中添加setNavigationBarHidden = NO的方法，并且在需要隐藏导航栏的viewController的viewWillAppear中setNavigationBarHidden:YES 同时在viewWillAppear的时候设为NO；</p>
 <p>我在storyboard中拖了4个viewController，分别设为1、2、3、4，其中3是没有导航栏的，界面切换的顺序是：<br>1-2-3<br>2-4<br>简单的说，1为root，2可以到3和4<br><img src="http://i1.tietuku.com/a3801e82244a56fa.png" alt="storyboard"></p>
 <p>当我们从没有导航栏的3滑动返回到2，并且第一次取消滑动返回，第二次再次滑动返回的时候，表面上界面2没有任何问题，但是此时，无论你进入4还是返回1，导航栏上始终写着2！也就是说，本该属于界面2的导航栏阴魂不散地留在了导航栏上面，返回按钮也变得无效，必须使用滑动返回<br>这个问题是必现的，也是比较离奇的=.=<br><img src="http://i1.tietuku.com/bff9f95e941c82fd.png" alt="第四页"><br><img src="http://i1.tietuku.com/91098c7438f8f3d8.png" alt="第一页"><br><img src="http://i1.tietuku.com/b2868e17f2361e67.png" alt="此处输入图片的描述"></p>
-<h2 id="讨论">讨论</h2><p>下面我们来讨论一下为什么会产生这样的问题：</p>
+<h2 id="讨论"><a href="#讨论" class="headerlink" title="讨论"></a>讨论</h2><p>下面我们来讨论一下为什么会产生这样的问题：</p>
 <p>我们往往会在viewWillAppear和viewWillDisappear中通过setNavigationBarHidden的方法来处理导航栏的显示和隐藏，在正常情况下，这不会引起任何问题，因为单纯的单击返回，这些方法的生命周期是这样的</p>
 <ol>
 <li>Current viewWillDisappear</li>
@@ -320,7 +320,7 @@
 <li>viewDidAppear 2    currentViewController 2</li>
 </ol>
 <p>如果直接滑动不取消，出来的数据同上<br>所以问题必然处在取消滑动返回的顺序上<br>个人猜测问题就出在第三句，在currentViewController=3的情况下调用了2的viewWillDisappear。造成了导航栏的错乱，以至于引发了之后的一系列问题。<br>再深入研究下去，我也不知道究竟是什么触发了导航栏的错乱了0.0</p>
-<h2 id="解决方案">解决方案</h2><p>对于这个问题的解决方案，事实上可以用一个很trick的方法来预防导航栏的错乱，那就是用设置导航栏的alpha值来替代hidden，实践证明，当导航栏设为alpha=0后可以达成setHidden=YES一样的效果。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>对于这个问题的解决方案，事实上可以用一个很trick的方法来预防导航栏的错乱，那就是用设置导航栏的alpha值来替代hidden，实践证明，当导航栏设为alpha=0后可以达成setHidden=YES一样的效果。</p>
 <p>当然，苹果官方并不建议对导航栏进行setHidden和setTranslucent以外的操作，事实证明，设置alpha会引发一些其他的问题。</p>
 <p>至于哪些问题…<br>我决定下次说啦~</p>
 </span>

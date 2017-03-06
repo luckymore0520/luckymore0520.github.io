@@ -254,11 +254,11 @@
       
         <span itemprop="articleBody"><p>（黑人问号 我真的写过这玩意儿么？）</p>
 <a id="more"></a> 
-<h2 id="关于_Co!orMix">关于 Co!orMix</h2><p>前几天， Cee 童鞋把 <a href="https://github.com/Cee/ColorMix" target="_blank" rel="external">Co!orMix</a> 开源了。当时刚上架的时候，团队里的另外两个童鞋都发了文，@Cee 讲<a href="http://blog.cee.moe/about-colormix-1.html" target="_blank" rel="external">产品</a>，@Albus 讲<a href="http://blog.cee.moe/about-colormix-2.html" target="_blank" rel="external">设计</a>（这两篇文章都在 V2EX 上发布过）。</p>
+<h2 id="关于-Co-orMix"><a href="#关于-Co-orMix" class="headerlink" title="关于 Co!orMix"></a>关于 Co!orMix</h2><p>前几天， Cee 童鞋把 <a href="https://github.com/Cee/ColorMix" target="_blank" rel="external">Co!orMix</a> 开源了。当时刚上架的时候，团队里的另外两个童鞋都发了文，@Cee 讲<a href="http://blog.cee.moe/about-colormix-1.html" target="_blank" rel="external">产品</a>，@Albus 讲<a href="http://blog.cee.moe/about-colormix-2.html" target="_blank" rel="external">设计</a>（这两篇文章都在 V2EX 上发布过）。</p>
 <p>既然代码开源了，那是时候说一下项目本身了。</p>
 <p>Co!orMix 里面并没有什么特别有技术含量的东西，可以说，任何一个人都可以毫不费力地把它做出来。对于新手来说，也值得一试。不过毫不谦虚地说，如果要达到零错误率，还是有一定难度的，而上线至今，它的 Crash 率一直保持在 0 ，这是我所引以为豪的。（欢迎大家试玩！偷偷说一句，我可是跟组里承诺过，只要出现一个 crash ，就请吃饭的哦！）</p>
 <!--more-->
-<h2 id="动手之前的思考">动手之前的思考</h2><p>无论是多简单的项目，开动之前必须要思考一下大致的架构。 Co!orMix 本身是一个相对很简单的游戏。</p>
+<h2 id="动手之前的思考"><a href="#动手之前的思考" class="headerlink" title="动手之前的思考"></a>动手之前的思考</h2><p>无论是多简单的项目，开动之前必须要思考一下大致的架构。 Co!orMix 本身是一个相对很简单的游戏。</p>
 <p>从页面考虑：<strong>主页、设置页、游戏界面、游戏结果页、引导页</strong>；<br>从游戏本身考虑：<strong>题目、选项、得分、策略、游戏模式</strong>。</p>
 <p>第一天晚上我们三个人商量出了游戏的大致功能和规则，我和 Cee 便直接开始讨论起了实现。由于游戏本身的复杂度不高，我们决定采用最传统的 MVC 来完成这个应用。 </p>
 <ul>
@@ -269,7 +269,7 @@
 <li><p>Controller 层<br>CMClassicTutorialViewController/CMFantasyTutorialViewController ：新手引导<br>CMGameResultViewController ：游戏结果<br>CMGameViewController ：游戏界面<br>CMMenuViewController ：游戏菜单界面<br>CMSettingViewController ：游戏设置界面</p>
 </li>
 </ul>
-<h2 id="项目结构">项目结构</h2><p>由于项目比较简单，所以并没有按照功能模块进行分类，项目的结构大致如下：</p>
+<h2 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h2><p>由于项目比较简单，所以并没有按照功能模块进行分类，项目的结构大致如下：</p>
 <table>
 <thead>
 <tr>
@@ -297,7 +297,7 @@
 </tbody>
 </table>
 <p>项目并没有使用任何第三方库（除了友盟统计），所以自然也就没有使用 Cocoapods 了。</p>
-<h2 id="关于开发细节">关于开发细节</h2><ul>
+<h2 id="关于开发细节"><a href="#关于开发细节" class="headerlink" title="关于开发细节"></a>关于开发细节</h2><ul>
 <li>规范</li>
 </ul>
 <p>项目主体编码主要是我负责的，@Cee 在初期做了 Code Review 工作（惊讶吧！这么小的项目还做 Code Review ）。开发在 <code>dev</code> 分支做，记得第一次提交的时候，@Cee 写了 N 个 comments ，很多都是关于 Coding Style 的问题（我自认已经很注意了，但是在某个人的强迫症面前根本不值一提），改完了所有的问题。之后就更加小心地完成编码工作。最后通过 <code>Pull Request</code> 合并进主分支。之后又开发了 Android 版本，感兴趣的童鞋可以去 <code>dev_android</code> 的分支看一下安卓版本，实现的大致逻辑和 iOS 差不多。</p>
@@ -330,7 +330,7 @@
 <li>面向对象</li>
 </ul>
 <p>项目虽小，可以用任何方式实现。不过这样一个小项目可以把面向对象思想很好地加以实践。所有的类都实现了对应的职能，隐藏了内部细节。</p>
-<h2 id="总结">总结</h2><p>以前写过不少项目，不过都比较庞大，而且基本都是负面教材。 Co!orMix 是一个小而精的 App ，从萌生想法，到 Demo ，到设计出炉正式完工，整个周期一共就一星期：设计花了一整天做出了可供交互的原型；在代码上只花了两天，但是却不仓促。代码均在 GitHub 上托管，测试上使用 TestFlight 完成分发，通过种子用户的体验修改游戏参数，提高用户体验。同时兼顾各种极端操作，保证代码安全性，做到零错误率。 </p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以前写过不少项目，不过都比较庞大，而且基本都是负面教材。 Co!orMix 是一个小而精的 App ，从萌生想法，到 Demo ，到设计出炉正式完工，整个周期一共就一星期：设计花了一整天做出了可供交互的原型；在代码上只花了两天，但是却不仓促。代码均在 GitHub 上托管，测试上使用 TestFlight 完成分发，通过种子用户的体验修改游戏参数，提高用户体验。同时兼顾各种极端操作，保证代码安全性，做到零错误率。 </p>
 <p>简单来说，对于新手来说，大家可以先下一下这个 App ，感兴趣的可以自己实现一遍，一点都不困难！然后再对比一下我们的实现。如果 Co!orMix 有任何不合理的地方，也欢迎指正！</p>
 <p>最后欢迎大家体验！</p>
 <ul>
@@ -509,7 +509,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#关于_Co!orMix"><span class="nav-number">1.</span> <span class="nav-text">关于 Co!orMix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动手之前的思考"><span class="nav-number">2.</span> <span class="nav-text">动手之前的思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#项目结构"><span class="nav-number">3.</span> <span class="nav-text">项目结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于开发细节"><span class="nav-number">4.</span> <span class="nav-text">关于开发细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#关于-Co-orMix"><span class="nav-number">1.</span> <span class="nav-text">关于 Co!orMix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动手之前的思考"><span class="nav-number">2.</span> <span class="nav-text">动手之前的思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#项目结构"><span class="nav-number">3.</span> <span class="nav-text">项目结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于开发细节"><span class="nav-number">4.</span> <span class="nav-text">关于开发细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>

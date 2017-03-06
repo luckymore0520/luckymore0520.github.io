@@ -51,7 +51,7 @@ aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种�
 <meta property="og:site_name" content="luckymore的学习笔记">
 <meta property="og:description" content="关于Aspectshttps://github.com/steipete/Aspects
 aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种实现方案。AOP主要实现的目的是针对业务处理过程中的切面进行提取，它所面对的是处理过程中的某个步骤或阶段，以获得逻辑过程中各部分之间低耦合性的隔离效果。以埋点为例，虽然现在已经有像友盟这样强大的第三方埋点方">
-<meta property="og:updated_time" content="2016-12-07T17:19:48.000Z">
+<meta property="og:updated_time" content="2017-03-06T02:38:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于Aspects和JSPatch的热埋点方案">
 <meta name="twitter:description" content="关于Aspectshttps://github.com/steipete/Aspects
@@ -247,7 +247,7 @@ aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种�
       
 
       
-        <span itemprop="articleBody"><h3 id="关于Aspects">关于Aspects</h3><p><a href="https://github.com/steipete/Aspects" target="_blank" rel="external">https://github.com/steipete/Aspects</a></p>
+        <span itemprop="articleBody"><h3 id="关于Aspects"><a href="#关于Aspects" class="headerlink" title="关于Aspects"></a>关于Aspects</h3><p><a href="https://github.com/steipete/Aspects" target="_blank" rel="external">https://github.com/steipete/Aspects</a></p>
 <p>aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种实现方案。AOP主要实现的目的是针对业务处理过程中的切面进行提取，它所面对的是处理过程中的某个步骤或阶段，以获得逻辑过程中各部分之间低耦合性的隔离效果。<br>以埋点为例，虽然现在已经有像友盟这样强大的第三方埋点方案，但是这并不能满足一些公司的业务需求，如果要完全自定义地进行埋点，监听并统计用户的行为，使用传统的方案，必然导致对整个项目的代码进行大范围的修改。而使用面向切面编程的思想，则可以将埋点和系统原有的逻辑解耦，悄悄地完成埋点。</p>
 <hr>
 <p>下面来看看Aspects是如何帮助我们实现这点的。</p>
@@ -260,14 +260,14 @@ aspects是针对面向切面编程：Aspect Oriented Programming(AOP)的一种�
 <p>我们可以把需要的埋点全部用NSArray的形式配置在一个列表中，通过提供类名、方法名、标识、以及必要时的block来统一的配置埋点，一旦触发了某次操作就进行一次记录。</p>
 <p>可以看出，对于一些情况的埋点，比如只要执行了某个方法就做一次记录，完全可以单纯地用一系列的字符串就可以做到，可以写到配置文件中或者远程部署，但是对于一些相对复杂的埋点，需要通过方法执行的上下文来判断，就必须传入block，因而想要做到远程控制埋点很困难。</p>
 <p>然后JSPatch的出现让远程控制所有的埋点成为了可能</p>
-<h3 id="关于JSPatch">关于JSPatch</h3><p>关于JSPatch 可以参见作者bang的博客<br><a href="http://blog.cnbang.net/works/2767/" target="_blank" rel="external">http://blog.cnbang.net/works/2767/</a><br>本人才疏学浅，并没有弄懂其实现原来，但是先尝试着用了起来。<br>JSPatch主要是为了动态更新iOS，当然也可以通过它来动态实现热部署</p>
+<h3 id="关于JSPatch"><a href="#关于JSPatch" class="headerlink" title="关于JSPatch"></a>关于JSPatch</h3><p>关于JSPatch 可以参见作者bang的博客<br><a href="http://blog.cnbang.net/works/2767/" target="_blank" rel="external">http://blog.cnbang.net/works/2767/</a><br>本人才疏学浅，并没有弄懂其实现原来，但是先尝试着用了起来。<br>JSPatch主要是为了动态更新iOS，当然也可以通过它来动态实现热部署</p>
 <p>之前说到，想要远程控制所有的埋点瓶颈在于block<br>而JSPatch可以通过javascript脚本来实现block，自然也就解决了这个问题。</p>
 <p>方案也很简单，原先的埋点方案是<br>item[0] = 类名<br>item[1] = 方法名<br>item[2] = 埋点标识<br>item[3] = block (非必须)<br>此时可以将item[3]替换成一个bool值或者一个标识<br>然后在解析的时候判断是否需要block</p>
 <p>如果需要就调用</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[JPEngine evaluateScript:script];</div></pre></td></tr></table></figure>
 <p>执行脚本，脚本的内容当然就是block的内容。<br>需要注意的是，JSPatch中执行Javascript中定义的block需要注意，参数由OC传入javascript采用以下方式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">- (void)request:(void(^)(NSString *action, NSArray arguments))callback &#123;</div><div class="line">    callback(self.action, self.arguments);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>具体可以参看( <a href="https://github.com/bang590/JSPatch" target="_blank" rel="external">https://github.com/bang590/JSPatch</a> )中对block使用的介绍</p>
-<h3 id="总结">总结</h3><p>使用Aspects我们可以实现将埋点和原有代码完全解耦<br>使用JSPatch和Aspects结合我们可以实现埋点的远程部署。<br>当然这两者在别的方面还有很好的应用。比如使用Aspects来代替项目中的基类，使用JSPatch完成热更新等等等等。大家都可以尝试下~</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>使用Aspects我们可以实现将埋点和原有代码完全解耦<br>使用JSPatch和Aspects结合我们可以实现埋点的远程部署。<br>当然这两者在别的方面还有很好的应用。比如使用Aspects来代替项目中的基类，使用JSPatch完成热更新等等等等。大家都可以尝试下~</p>
 </span>
       
     </div>
