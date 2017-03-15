@@ -47,12 +47,12 @@
 在下一篇文章中，我还会通过一个复杂度适中的案例完成一个使用 MVVM + ReactiveCocoa 的 Demo， 总结了一些开发过程中的注意要点。（这篇太长了 +。=）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="初探 ReactiveSwift">
-<meta property="og:url" content="http://blog.luckymore.wang/2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/index.html">
+<meta property="og:url" content="http://blog.luckymore.wang/2017/03/01/MVVM-ReactiveSwift-ReactiveCocoa/index.html">
 <meta property="og:site_name" content="luckymore的学习笔记">
 <meta property="og:description" content="这篇文章其实算是一篇学习笔记，先是回顾了 MVVM 和 ReactiveCocoa 的历史，然后对 ReactiveCocoa 5.0 拆分出来的 ReactiveSwift 中的一些概念结合源码做了一定的解释。
 在下一篇文章中，我还会通过一个复杂度适中的案例完成一个使用 MVVM + ReactiveCocoa 的 Demo， 总结了一些开发过程中的注意要点。（这篇太长了 +。=）">
 <meta property="og:image" content="https://github.com/luckymore0520/luckymore0520.github.io/raw/master/images/lalala.jpeg">
-<meta property="og:updated_time" content="2017-03-06T02:39:40.000Z">
+<meta property="og:updated_time" content="2017-03-10T06:43:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初探 ReactiveSwift">
 <meta name="twitter:description" content="这篇文章其实算是一篇学习笔记，先是回顾了 MVVM 和 ReactiveCocoa 的历史，然后对 ReactiveCocoa 5.0 拆分出来的 ReactiveSwift 中的一些概念结合源码做了一定的解释。
@@ -229,8 +229,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/" itemprop="commentsCount"></span>
+                <a href="/2017/03/01/MVVM-ReactiveSwift-ReactiveCocoa/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/01/MVVM-ReactiveSwift-ReactiveCocoa/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -345,7 +345,7 @@
 <p>关于 <code>副作用</code> ，英文的说法是 <code>side effect</code>，这里也实在找不到什么更好的翻译了，而且的确挺难理解。</p>
 <p>我们举一个例子，假设我们要实现一个按钮点击实现，点击按钮执行一个网络请求，请求完毕后需要处理请求的结果，一般会通过 <code>signalProducer</code> 来实现, 首先，网络请求是异步的，你需要提前预置好异步请求结果的处理方法，再者，<code>signalProducer</code>有一个<code>on</code>方法，可以处理在整个过程中针对任何事件的回调，这是单纯的 <code>Signal</code> 无法做到的。</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> (signal, observer) = <span class="type">Signal</span>&lt;<span class="type">Bool</span>,<span class="type">NoError</span>&gt;.pipe()</div><div class="line"><span class="keyword">let</span> signalProducer = <span class="type">SignalProducer</span>&lt;<span class="type">Bool</span>, <span class="type">NoError</span>&gt;(signal).on(</div><div class="line"> 	 starting: <span class="literal">nil</span>, started: <span class="literal">nil</span>,</div><div class="line">    event: &#123;</div><div class="line">        <span class="number">_</span> <span class="keyword">in</span></div><div class="line">		 <span class="comment">//做一些操作</span></div><div class="line">    &#125;,</div><div class="line">    value: <span class="literal">nil</span>, failed: <span class="literal">nil</span>, completed: <span class="literal">nil</span>, interrupted: <span class="literal">nil</span>, terminated: <span class="literal">nil</span>, disposed: <span class="literal">nil</span> </div><div class="line">)</div></pre></td></tr></table></figure>
-<p>###Action 动作<br>先看一下 <code>Action</code> 的定义</p>
+<h3 id="Action-动作"><a href="#Action-动作" class="headerlink" title="Action 动作"></a>Action 动作</h3><p>先看一下 <code>Action</code> 的定义</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Action</span>&lt;<span class="title">Input</span>, <span class="title">Output</span>, <span class="title">Error</span>: <span class="title">Swift</span>.<span class="title">Error</span>&gt; </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">let</span> executeClosure: (<span class="number">_</span> state: <span class="type">Any</span>, <span class="number">_</span> input: <span class="type">Input</span>) -&gt; <span class="type">SignalProducer</span>&lt;<span class="type">Output</span>, <span class="type">Error</span>&gt;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">let</span> eventsObserver: <span class="type">Signal</span>&lt;<span class="type">Event</span>&lt;<span class="type">Output</span>, <span class="type">Error</span>&gt;, <span class="type">NoError</span>&gt;.<span class="type">Observer</span></div><div class="line">	<span class="keyword">private</span> <span class="keyword">let</span> disabledErrorsObserver: <span class="type">Signal</span>&lt;(), <span class="type">NoError</span>&gt;.<span class="type">Observer</span></div><div class="line">	<span class="comment">/// The lifetime of the Action.</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">let</span> lifetime: <span class="type">Lifetime</span></div><div class="line">	<span class="comment">/// A signal of all events generated from applications of the Action.</span></div><div class="line">	<span class="comment">///</span></div><div class="line">	<span class="comment">/// In other words, this will send every `Event` from every signal generated</span></div><div class="line">	<span class="comment">/// by each SignalProducer returned from apply() except `ActionError.disabled`.</span></div><div class="line">	<span class="keyword">public</span> <span class="keyword">let</span> events: <span class="type">Signal</span>&lt;<span class="type">Event</span>&lt;<span class="type">Output</span>, <span class="type">Error</span>&gt;, <span class="type">NoError</span>&gt;</div><div class="line">	.........	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p><code>Action</code> 有一个 <code>Input</code> 代表输入， <code>Output</code> 代表输出， <code>Action</code> 中 <code>&lt;Output, Error&gt;</code> 对应于其 <code>Signal</code> 的 <code>&lt;Value, Error&gt;</code></p>
 <p><code>executeClosure</code> 是一个生成 <code>SignalProducer</code> 的闭包，在 <code>Action</code> 的初始化方法中，会生成对应的 <code>eventObserver</code> 和 <code>events</code> 的 Signal， 用于观察和发送事件。</p>
@@ -405,6 +405,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2017/03/10/ReactiveCocoa-5-0-MVVM-DEMO/" rel="prev" title="ReactiveCocoa5.0 + MVVM 实践">
+                ReactiveCocoa5.0 + MVVM 实践 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -428,8 +432,8 @@
         
           <div class="comments" id="comments">
             
-              <div class="ds-thread" data-thread-key="2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/"
-                   data-title="初探 ReactiveSwift" data-url="http://blog.luckymore.wang/2017/03/01/MVVM-ReactiveSwift-ReactiveCoaco/">
+              <div class="ds-thread" data-thread-key="2017/03/01/MVVM-ReactiveSwift-ReactiveCocoa/"
+                   data-title="初探 ReactiveSwift" data-url="http://blog.luckymore.wang/2017/03/01/MVVM-ReactiveSwift-ReactiveCocoa/">
               </div>
             
           </div>
@@ -472,14 +476,14 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-count">17</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">4</span>
               <span class="site-state-item-name">分类</span>
               </a>
           </div>
@@ -547,7 +551,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#忆往昔"><span class="nav-number">1.</span> <span class="nav-text">忆往昔</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReactiveCocoa-前世今生"><span class="nav-number">2.</span> <span class="nav-text">ReactiveCocoa 前世今生</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveCocoa"><span class="nav-number">2.1.</span> <span class="nav-text">ReactiveCocoa</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveSwift"><span class="nav-number">2.2.</span> <span class="nav-text">ReactiveSwift</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveObjc"><span class="nav-number">2.3.</span> <span class="nav-text">ReactiveObjc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveObjcBridge"><span class="nav-number">2.4.</span> <span class="nav-text">ReactiveObjcBridge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用场景"><span class="nav-number">2.5.</span> <span class="nav-text">使用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReactiveSwift-相关概念梳理"><span class="nav-number">3.</span> <span class="nav-text">ReactiveSwift 相关概念梳理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Signal-信号"><span class="nav-number">3.1.</span> <span class="nav-text">Signal 信号</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#信号创建的几个方法"><span class="nav-number">3.1.1.</span> <span class="nav-text">信号创建的几个方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#信号的转换"><span class="nav-number">3.1.2.</span> <span class="nav-text">信号的转换</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Event-事件"><span class="nav-number">3.2.</span> <span class="nav-text">Event 事件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Observer-观察者"><span class="nav-number">3.3.</span> <span class="nav-text">Observer 观察者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Property-可被观察的值的封装"><span class="nav-number">3.4.</span> <span class="nav-text">Property 可被观察的值的封装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SignalProducer-信号生产者"><span class="nav-number">3.5.</span> <span class="nav-text">SignalProducer 信号生产者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lifetime-生命周期"><span class="nav-number">3.6.</span> <span class="nav-text">Lifetime 生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lt-绑定"><span class="nav-number">3.7.</span> <span class="nav-text"><~ 绑定</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#忆往昔"><span class="nav-number">1.</span> <span class="nav-text">忆往昔</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReactiveCocoa-前世今生"><span class="nav-number">2.</span> <span class="nav-text">ReactiveCocoa 前世今生</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveCocoa"><span class="nav-number">2.1.</span> <span class="nav-text">ReactiveCocoa</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveSwift"><span class="nav-number">2.2.</span> <span class="nav-text">ReactiveSwift</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveObjc"><span class="nav-number">2.3.</span> <span class="nav-text">ReactiveObjc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReactiveObjcBridge"><span class="nav-number">2.4.</span> <span class="nav-text">ReactiveObjcBridge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用场景"><span class="nav-number">2.5.</span> <span class="nav-text">使用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReactiveSwift-相关概念梳理"><span class="nav-number">3.</span> <span class="nav-text">ReactiveSwift 相关概念梳理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Signal-信号"><span class="nav-number">3.1.</span> <span class="nav-text">Signal 信号</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#信号创建的几个方法"><span class="nav-number">3.1.1.</span> <span class="nav-text">信号创建的几个方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#信号的转换"><span class="nav-number">3.1.2.</span> <span class="nav-text">信号的转换</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Event-事件"><span class="nav-number">3.2.</span> <span class="nav-text">Event 事件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Observer-观察者"><span class="nav-number">3.3.</span> <span class="nav-text">Observer 观察者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Property-可被观察的值的封装"><span class="nav-number">3.4.</span> <span class="nav-text">Property 可被观察的值的封装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SignalProducer-信号生产者"><span class="nav-number">3.5.</span> <span class="nav-text">SignalProducer 信号生产者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Action-动作"><span class="nav-number">3.6.</span> <span class="nav-text">Action 动作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lifetime-生命周期"><span class="nav-number">3.7.</span> <span class="nav-text">Lifetime 生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lt-绑定"><span class="nav-number">3.8.</span> <span class="nav-text"><~ 绑定</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
